@@ -17,6 +17,8 @@ public class BoardGenerator : MonoBehaviour
     [SerializeField] private Transform boardRoot;
     [SerializeField] private float cellSpacing = 1.1f;
     [SerializeField] private bool generateOnStart = true;
+    [SerializeField] private Color whiteCellColor = new Color(0.92f, 0.92f, 0.92f, 1f);
+    [SerializeField] private Color blackCellColor = new Color(0.82f, 0.82f, 0.82f, 1f);
 
     private void Start()
     {
@@ -89,6 +91,7 @@ public class BoardGenerator : MonoBehaviour
 #endif
 
             cellView.GridPosition = gridPosition;
+            cellView.SetCellColor(GetCellColor(gridPosition));
             cellView.SetActiveState(true);
             cellView.SetCovered(false);
             cellView.SetPiece(false);
@@ -244,6 +247,13 @@ public class BoardGenerator : MonoBehaviour
 
         Debug.LogWarning($"{(useWhiteCell ? "whiteCellPrefab" : "blackCellPrefab")} is not assigned, and cellPrefab is also missing.");
         return null;
+    }
+
+    private Color GetCellColor(Vector2Int gridPosition)
+    {
+        return (gridPosition.x + gridPosition.y) % 2 == 0
+            ? whiteCellColor
+            : blackCellColor;
     }
 
     private GameObject InstantiateCellPrefab(GameObject prefab, Vector3 position, Transform parent)
