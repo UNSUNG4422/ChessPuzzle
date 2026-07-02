@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e398004c087afb4dbacb45419e855f8, type: 3}
+  m_Name: Exact
+  m_EditorClassIdentifier: 
+  helpPageType: 2
+  title: "\u6570\u5B57\u30DE\u30B9"
+  message: "\n\n\n\n\u8AAC\u660E\n\u30DE\u30B9\u306B\u6570\u5B57\u304C\u66F8\u3044\u3066\u3042\u308B\u3053\u3068\u304C\u3042\u308A\u307E\u3059\u3002\n\u6570\u5B57\u306E\u66F8\u304B\u308C\u305F\u30DE\u30B9\u306F\u3001\u6570\u5B57\u306E\u56DE\u6570\u5206\n\u99D2\u306E\u79FB\u52D5\u7BC4\u56F2\u3092\u91CD\u306D\u308B\u5FC5\u8981\u304C\u3042\u308A\u307E\u3059\u3002"
+  image: {fileID: 21300000, guid: f7903dbd6df38404e93d018e286dc30c, type: 3}

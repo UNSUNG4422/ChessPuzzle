@@ -21,6 +21,7 @@ public class CellView : MonoBehaviour
     [SerializeField] private GameObject exactCoverVisualRoot;
     [SerializeField] private GameObject exactCoverFrame;
     [SerializeField] private GameObject exactCoverTextRoot;
+    [SerializeField] private GameObject exactCoverTextBackground;
     [SerializeField] private TMP_Text exactCoverTextOutline;
     [SerializeField] private TMP_Text exactCoverText;
     [SerializeField] private TMP_FontAsset exactCoverFontAsset;
@@ -41,8 +42,17 @@ public class CellView : MonoBehaviour
     [SerializeField] private Color exactCoverTextColor = Color.white;
     [SerializeField] private Color exactCoverCompleteTextColor = new Color(0.8f, 1f, 0.8f, 1f);
     [SerializeField] private Color exactCoverOverTextColor = Color.red;
-    [SerializeField] private float exactCoverTextMainFontSize = 4.5f;
+    [SerializeField] private Vector3 exactCoverTextLocalPosition = new Vector3(0.28f, -0.28f, 0f);
+    [SerializeField] private float exactCoverTextFontSize = 2.5f;
+    [SerializeField] private Sprite exactCoverTextBackgroundSprite;
+    [SerializeField] private Color exactCoverTextBackgroundColor = new Color(0.25f, 0.25f, 0.25f, 0.75f);
+    [SerializeField] private Vector3 exactCoverTextBackgroundLocalPosition = new Vector3(0.28f, -0.28f, 0f);
+    [SerializeField] private Vector3 exactCoverTextBackgroundLocalScale = new Vector3(0.28f, 0.28f, 1f);
+    [SerializeField] private int exactCoverFrameSortingOrder = 8;
+    [SerializeField] private int exactCoverTextBackgroundSortingOrder = 11;
+    [SerializeField] private int exactCoverTextSortingOrder = 12;
 
+    private static Sprite generatedExactCoverTextBackgroundSprite;
     private bool coverageVisible = true;
 
     private void Awake()
@@ -231,12 +241,18 @@ public class CellView : MonoBehaviour
             ApplyOverlayColor(exactCoverFrame, GetExactCoverFrameColor());
         }
 
+        if (exactCoverTextBackground != null)
+        {
+            exactCoverTextBackground.SetActive(showExactCover);
+            ApplyExactCoverTextBackgroundStyle();
+        }
+
         if (exactCoverText != null)
         {
             exactCoverText.gameObject.SetActive(showExactCover);
             exactCoverText.text = remainingCoverCountText;
             exactCoverText.color = GetExactCoverTextColor(remainingCoverCount);
-            ApplyExactCoverTextStyle(exactCoverText, exactCoverTextMainFontSize, 9);
+            ApplyExactCoverTextStyle(exactCoverText, exactCoverTextFontSize, exactCoverTextSortingOrder);
         }
 
         if (exactCoverTextOutline != null)
@@ -288,7 +304,7 @@ public class CellView : MonoBehaviour
         text.horizontalAlignment = HorizontalAlignmentOptions.Center;
         text.verticalAlignment = VerticalAlignmentOptions.Middle;
 
-        text.transform.localPosition = Vector3.zero;
+        text.transform.localPosition = exactCoverTextLocalPosition;
         text.transform.localRotation = Quaternion.identity;
         text.transform.localScale = Vector3.one;
 
@@ -296,6 +312,7 @@ public class CellView : MonoBehaviour
 
         if (textRenderer != null)
         {
+            textRenderer.sortingLayerName = GetCellSortingLayerName();
             textRenderer.sortingOrder = sortingOrder;
         }
     }
@@ -342,9 +359,14 @@ public class CellView : MonoBehaviour
             exactCoverFrame = CreateDefaultExactCoverFrame();
         }
 
+        if (exactCoverTextBackground == null)
+        {
+            exactCoverTextBackground = CreateDefaultExactCoverTextBackground();
+        }
+
         if (exactCoverText == null)
         {
-            exactCoverText = CreateDefaultExactCoverText("ExactCoverText", exactCoverTextMainFontSize, 9);
+            exactCoverText = CreateDefaultExactCoverText("ExactCoverText", exactCoverTextFontSize, exactCoverTextSortingOrder);
         }
 
         ConfigureExactCoverVisualHierarchy();
@@ -364,11 +386,26 @@ public class CellView : MonoBehaviour
         lineRenderer.positionCount = 5;
         lineRenderer.startWidth = 0.07f;
         lineRenderer.endWidth = 0.07f;
-        lineRenderer.sortingOrder = 7;
+        lineRenderer.sortingLayerName = GetCellSortingLayerName();
+        lineRenderer.sortingOrder = exactCoverFrameSortingOrder;
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         ApplyExactCoverFrameShape(lineRenderer);
 
         return frameObject;
+    }
+
+    private GameObject CreateDefaultExactCoverTextBackground()
+    {
+        GameObject backgroundObject = new GameObject("ExactCoverTextBackground");
+        Transform parent = exactCoverVisualRoot != null ? exactCoverVisualRoot.transform : transform;
+        backgroundObject.transform.SetParent(parent, false);
+        ApplyExactCoverTextBackgroundTransform(backgroundObject.transform);
+
+        SpriteRenderer backgroundRenderer = backgroundObject.AddComponent<SpriteRenderer>();
+        backgroundRenderer.sprite = GetExactCoverTextBackgroundSprite();
+        ApplyExactCoverTextBackgroundStyle(backgroundRenderer);
+
+        return backgroundObject;
     }
 
     private GameObject CreateDefaultExactCoverVisualRoot()
@@ -387,7 +424,8 @@ public class CellView : MonoBehaviour
         GameObject textObject = new GameObject(objectName);
         Transform parent = exactCoverVisualRoot != null ? exactCoverVisualRoot.transform : transform;
         textObject.transform.SetParent(parent, false);
-        textObject.transform.localPosition = Vector3.zero;
+        textObject.transform.localPosition = exactCoverTextLocalPosition;
+        textObject.transform.localRotation = Quaternion.identity;
         textObject.transform.localScale = Vector3.one;
 
         TextMeshPro text = textObject.AddComponent<TextMeshPro>();
@@ -406,6 +444,7 @@ public class CellView : MonoBehaviour
 
         if (textRenderer != null)
         {
+            textRenderer.sortingLayerName = GetCellSortingLayerName();
             textRenderer.sortingOrder = sortingOrder;
         }
 
@@ -427,7 +466,10 @@ public class CellView : MonoBehaviour
         }
 
         ConfigureExactCoverTransform(exactCoverFrame != null ? exactCoverFrame.transform : null, rootTransform);
+        ConfigureExactCoverTransform(exactCoverTextBackground != null ? exactCoverTextBackground.transform : null, rootTransform);
         ConfigureExactCoverTransform(exactCoverText != null ? exactCoverText.transform : null, rootTransform);
+
+        ApplyExactCoverTextBackgroundStyle();
 
         if (exactCoverText != null)
         {
@@ -469,17 +511,99 @@ public class CellView : MonoBehaviour
         targetTransform.localScale = Vector3.one;
     }
 
+    private void ApplyExactCoverTextBackgroundStyle()
+    {
+        if (exactCoverTextBackground == null)
+        {
+            return;
+        }
+
+        ApplyExactCoverTextBackgroundTransform(exactCoverTextBackground.transform);
+
+        SpriteRenderer backgroundRenderer = exactCoverTextBackground.GetComponent<SpriteRenderer>();
+
+        if (backgroundRenderer != null)
+        {
+            backgroundRenderer.sprite = GetExactCoverTextBackgroundSprite();
+            ApplyExactCoverTextBackgroundStyle(backgroundRenderer);
+        }
+    }
+
+    private void ApplyExactCoverTextBackgroundStyle(SpriteRenderer backgroundRenderer)
+    {
+        backgroundRenderer.color = exactCoverTextBackgroundColor;
+        backgroundRenderer.sortingLayerName = GetCellSortingLayerName();
+        backgroundRenderer.sortingOrder = exactCoverTextBackgroundSortingOrder;
+    }
+
+    private void ApplyExactCoverTextBackgroundTransform(Transform backgroundTransform)
+    {
+        backgroundTransform.localPosition = exactCoverTextBackgroundLocalPosition;
+        backgroundTransform.localRotation = Quaternion.identity;
+        backgroundTransform.localScale = exactCoverTextBackgroundLocalScale;
+    }
+
     private void ApplyExactCoverFrameShape(LineRenderer lineRenderer)
     {
         lineRenderer.useWorldSpace = false;
         lineRenderer.loop = false;
         lineRenderer.positionCount = 5;
-        lineRenderer.sortingOrder = 7;
+        lineRenderer.sortingLayerName = GetCellSortingLayerName();
+        lineRenderer.sortingOrder = exactCoverFrameSortingOrder;
         lineRenderer.SetPosition(0, new Vector3(-0.48f, -0.48f, 0f));
         lineRenderer.SetPosition(1, new Vector3(-0.48f, 0.48f, 0f));
         lineRenderer.SetPosition(2, new Vector3(0.48f, 0.48f, 0f));
         lineRenderer.SetPosition(3, new Vector3(0.48f, -0.48f, 0f));
         lineRenderer.SetPosition(4, new Vector3(-0.48f, -0.48f, 0f));
+    }
+
+    private string GetCellSortingLayerName()
+    {
+        return spriteRenderer != null ? spriteRenderer.sortingLayerName : "Default";
+    }
+
+    private Sprite GetExactCoverTextBackgroundSprite()
+    {
+        if (exactCoverTextBackgroundSprite != null)
+        {
+            return exactCoverTextBackgroundSprite;
+        }
+
+        if (generatedExactCoverTextBackgroundSprite == null)
+        {
+            generatedExactCoverTextBackgroundSprite = CreateGeneratedCircleSprite();
+        }
+
+        return generatedExactCoverTextBackgroundSprite;
+    }
+
+    private static Sprite CreateGeneratedCircleSprite()
+    {
+        const int size = 64;
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        texture.hideFlags = HideFlags.HideAndDontSave;
+        texture.filterMode = FilterMode.Bilinear;
+
+        Color[] pixels = new Color[size * size];
+        float center = (size - 1) * 0.5f;
+        float radius = center - 1f;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float distance = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                float alpha = Mathf.Clamp01(radius + 1f - distance);
+                pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+
+        texture.SetPixels(pixels);
+        texture.Apply();
+
+        Sprite sprite = Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), size);
+        sprite.hideFlags = HideFlags.HideAndDontSave;
+        return sprite;
     }
 
     private void ApplyExactCoverTextAssets(TMP_Text text)

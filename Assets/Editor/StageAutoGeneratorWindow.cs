@@ -16,6 +16,13 @@ public class StageAutoGeneratorWindow : EditorWindow
     [SerializeField] private int boardHeight = 8;
     [SerializeField] private int pieceCount = 4;
     [SerializeField] private int randomSeed = 12345;
+    [SerializeField] private bool includeExactCoverCells = true;
+    [SerializeField, Range(0f, 1f)] private float exactCoverCellRate = 0.2f;
+    [SerializeField, Range(1, 5)] private int maxExactCoverNumber = 3;
+    [SerializeField] private bool includeFixedPieces;
+    [SerializeField] private int fixedPieceCount;
+    [SerializeField] private HelpPageType helpPageToUnlock = HelpPageType.None;
+    [SerializeField] private HelpPageType helpPageToShowEveryTime = HelpPageType.None;
     [SerializeField] private bool registerToStageLoader = true;
     [SerializeField] private StageLoader targetStageLoader;
     [SerializeField] private List<PieceData> candidatePieces = new List<PieceData>();
@@ -51,28 +58,52 @@ public class StageAutoGeneratorWindow : EditorWindow
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
         EditorGUILayout.LabelField("Output", EditorStyles.boldLabel);
-        outputFolder = (DefaultAsset)EditorGUILayout.ObjectField("生成先フォルダ", outputFolder, typeof(DefaultAsset), false);
-        stageNamePrefix = EditorGUILayout.TextField("ステージ名 prefix", stageNamePrefix);
-        generateCount = EditorGUILayout.IntField("生成数", generateCount);
+        outputFolder = (DefaultAsset)EditorGUILayout.ObjectField("Output Folder", outputFolder, typeof(DefaultAsset), false);
+        stageNamePrefix = EditorGUILayout.TextField("Stage Name Prefix", stageNamePrefix);
+        generateCount = EditorGUILayout.IntField("Generate Count", generateCount);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Board", EditorStyles.boldLabel);
-        boardWidth = EditorGUILayout.IntField("盤面幅", boardWidth);
-        boardHeight = EditorGUILayout.IntField("盤面高さ", boardHeight);
-        pieceCount = EditorGUILayout.IntField("配置する駒数", pieceCount);
-        randomSeed = EditorGUILayout.IntField("ランダムシード", randomSeed);
+        boardWidth = EditorGUILayout.IntField("Board Width", boardWidth);
+        boardHeight = EditorGUILayout.IntField("Board Height", boardHeight);
+        pieceCount = EditorGUILayout.IntField("Piece Count", pieceCount);
+        randomSeed = EditorGUILayout.IntField("Random Seed", randomSeed);
 
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("使用する駒の候補", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Exact Cover Cells", EditorStyles.boldLabel);
+        includeExactCoverCells = EditorGUILayout.Toggle("Include Exact Cover Cells", includeExactCoverCells);
+
+        using (new EditorGUI.DisabledScope(!includeExactCoverCells))
+        {
+            exactCoverCellRate = EditorGUILayout.Slider("Exact Cover Cell Rate", exactCoverCellRate, 0f, 1f);
+            maxExactCoverNumber = EditorGUILayout.IntSlider("Max Exact Cover Number", maxExactCoverNumber, 1, 5);
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Fixed Pieces", EditorStyles.boldLabel);
+        includeFixedPieces = EditorGUILayout.Toggle("Include Fixed Pieces", includeFixedPieces);
+
+        using (new EditorGUI.DisabledScope(!includeFixedPieces))
+        {
+            fixedPieceCount = EditorGUILayout.IntField("Fixed Piece Count", fixedPieceCount);
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Help", EditorStyles.boldLabel);
+        helpPageToUnlock = (HelpPageType)EditorGUILayout.EnumPopup("Help Page To Unlock", helpPageToUnlock);
+        helpPageToShowEveryTime = (HelpPageType)EditorGUILayout.EnumPopup("Help Page To Show Every Time", helpPageToShowEveryTime);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Candidate Pieces", EditorStyles.boldLabel);
         DrawCandidatePieces();
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("StageLoader", EditorStyles.boldLabel);
-        registerToStageLoader = EditorGUILayout.Toggle("生成後に自動登録", registerToStageLoader);
+        registerToStageLoader = EditorGUILayout.Toggle("Register After Generate", registerToStageLoader);
 
         using (new EditorGUI.DisabledScope(!registerToStageLoader))
         {
-            targetStageLoader = (StageLoader)EditorGUILayout.ObjectField("登録先 StageLoader", targetStageLoader, typeof(StageLoader), true);
+            targetStageLoader = (StageLoader)EditorGUILayout.ObjectField("Target StageLoader", targetStageLoader, typeof(StageLoader), true);
         }
 
         EditorGUILayout.Space();
@@ -121,6 +152,8 @@ public class StageAutoGeneratorWindow : EditorWindow
 
     private bool CanGenerate()
     {
+        int clampedFixedPieceCount = includeFixedPieces ? Mathf.Max(0, fixedPieceCount) : 0;
+
         return GetOutputFolderPath() != null
             && !string.IsNullOrWhiteSpace(stageNamePrefix)
             && generateCount > 0
@@ -128,6 +161,7 @@ public class StageAutoGeneratorWindow : EditorWindow
             && boardHeight > 0
             && pieceCount > 0
             && pieceCount <= boardWidth * boardHeight
+            && clampedFixedPieceCount <= pieceCount
             && GetValidCandidatePieces().Count > 0;
     }
 
@@ -137,7 +171,7 @@ public class StageAutoGeneratorWindow : EditorWindow
 
         if (folderPath == null)
         {
-            EditorUtility.DisplayDialog("Stage Auto Generator", "生成先フォルダをAssets配下から選択してください。", "OK");
+            EditorUtility.DisplayDialog("Stage Auto Generator", "Select an output folder under Assets.", "OK");
             return;
         }
 
@@ -151,9 +185,7 @@ public class StageAutoGeneratorWindow : EditorWindow
             for (int i = 0; i < generateCount; i++)
             {
                 StageData stageData = GenerateSingleStage(validCandidates, randomSeed + i, i + 1);
-                string assetPath = AssetDatabase.GenerateUniqueAssetPath(
-                    $"{folderPath}/{stageData.stageName}.asset"
-                );
+                string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{folderPath}/{stageData.stageName}.asset");
 
                 AssetDatabase.CreateAsset(stageData, assetPath);
                 generatedStages.Add(stageData);
@@ -169,7 +201,7 @@ public class StageAutoGeneratorWindow : EditorWindow
 
             EditorUtility.DisplayDialog(
                 "Stage Auto Generator",
-                $"{generatedStages.Count}件のStageDataを生成しました。",
+                $"Generated {generatedStages.Count} StageData asset(s).",
                 "OK"
             );
         }
@@ -188,12 +220,16 @@ public class StageAutoGeneratorWindow : EditorWindow
         try
         {
             List<GeneratedPiece> placements = GenerateAnswerPlacements(validCandidates, random);
-            HashSet<Vector2Int> coveredPositions = CalculateCoveredPositions(placements, cellMap);
+            MarkFixedPieces(placements, random);
+            Dictionary<Vector2Int, int> coverCounts = CalculateCoverCounts(placements, cellMap);
 
             StageData stageData = CreateInstance<StageData>();
             stageData.stageName = $"{stageNamePrefix}_{serialNumber:000}";
-            stageData.boardText = BuildBoardText(coveredPositions);
+            stageData.boardText = BuildBoardText(coverCounts, random);
             stageData.pieceStocks = BuildPieceStocks(placements);
+            stageData.fixedPieces = BuildFixedPieces(placements);
+            stageData.helpPageToUnlock = helpPageToUnlock;
+            stageData.helpPageToShowEveryTime = helpPageToShowEveryTime;
             stageData.authorNote = BuildAuthorNote(seed, placements);
 
             return stageData;
@@ -244,6 +280,30 @@ public class StageAutoGeneratorWindow : EditorWindow
         return placements;
     }
 
+    private void MarkFixedPieces(List<GeneratedPiece> placements, System.Random random)
+    {
+        if (!includeFixedPieces || fixedPieceCount <= 0 || placements.Count == 0)
+        {
+            return;
+        }
+
+        List<int> indices = new List<int>();
+
+        for (int i = 0; i < placements.Count; i++)
+        {
+            indices.Add(i);
+        }
+
+        Shuffle(indices, random);
+
+        int count = Mathf.Min(Mathf.Max(0, fixedPieceCount), placements.Count);
+
+        for (int i = 0; i < count; i++)
+        {
+            placements[indices[i]].IsFixed = true;
+        }
+    }
+
     private Vector2Int GetUnusedPosition(System.Random random, HashSet<Vector2Int> occupiedPositions)
     {
         int maxAttempts = boardWidth * boardHeight * 2;
@@ -271,15 +331,15 @@ public class StageAutoGeneratorWindow : EditorWindow
             }
         }
 
-        throw new InvalidOperationException("配置可能な空きマスがありません。");
+        throw new InvalidOperationException("No empty cell is available for piece placement.");
     }
 
-    private HashSet<Vector2Int> CalculateCoveredPositions(
+    private Dictionary<Vector2Int, int> CalculateCoverCounts(
         List<GeneratedPiece> placements,
         Dictionary<Vector2Int, CellView> cellMap
     )
     {
-        HashSet<Vector2Int> coveredPositions = new HashSet<Vector2Int>();
+        Dictionary<Vector2Int, int> coverCounts = new Dictionary<Vector2Int, int>();
 
         foreach (GeneratedPiece placement in placements)
         {
@@ -291,22 +351,43 @@ public class StageAutoGeneratorWindow : EditorWindow
 
             foreach (Vector2Int position in positions)
             {
-                coveredPositions.Add(position);
+                if (coverCounts.ContainsKey(position))
+                {
+                    coverCounts[position]++;
+                }
+                else
+                {
+                    coverCounts.Add(position, 1);
+                }
             }
         }
 
-        return coveredPositions;
+        return coverCounts;
     }
 
-    private string BuildBoardText(HashSet<Vector2Int> coveredPositions)
+    private string BuildBoardText(Dictionary<Vector2Int, int> coverCounts, System.Random random)
     {
+        HashSet<Vector2Int> exactCoverPositions = ChooseExactCoverPositions(coverCounts, random);
         StringBuilder builder = new StringBuilder();
 
         for (int y = boardHeight - 1; y >= 0; y--)
         {
             for (int x = 0; x < boardWidth; x++)
             {
-                builder.Append(coveredPositions.Contains(new Vector2Int(x, y)) ? 'Z' : 'X');
+                Vector2Int position = new Vector2Int(x, y);
+
+                if (!coverCounts.TryGetValue(position, out int coverCount) || coverCount <= 0)
+                {
+                    builder.Append('X');
+                }
+                else if (exactCoverPositions.Contains(position))
+                {
+                    builder.Append((char)('0' + coverCount));
+                }
+                else
+                {
+                    builder.Append('Z');
+                }
             }
 
             if (y > 0)
@@ -318,12 +399,69 @@ public class StageAutoGeneratorWindow : EditorWindow
         return builder.ToString();
     }
 
+    private HashSet<Vector2Int> ChooseExactCoverPositions(Dictionary<Vector2Int, int> coverCounts, System.Random random)
+    {
+        HashSet<Vector2Int> exactCoverPositions = new HashSet<Vector2Int>();
+
+        if (!includeExactCoverCells || exactCoverCellRate <= 0f)
+        {
+            return exactCoverPositions;
+        }
+
+        List<Vector2Int> activePositions = new List<Vector2Int>();
+        List<Vector2Int> exactCoverCandidates = new List<Vector2Int>();
+        int maxCoverNumber = Mathf.Clamp(maxExactCoverNumber, 1, 5);
+
+        foreach (KeyValuePair<Vector2Int, int> coverCount in coverCounts)
+        {
+            if (coverCount.Value <= 0)
+            {
+                continue;
+            }
+
+            activePositions.Add(coverCount.Key);
+
+            if (coverCount.Value <= maxCoverNumber)
+            {
+                exactCoverCandidates.Add(coverCount.Key);
+            }
+        }
+
+        int targetExactCoverCount = Mathf.RoundToInt(activePositions.Count * Mathf.Clamp01(exactCoverCellRate));
+        targetExactCoverCount = Mathf.Min(targetExactCoverCount, exactCoverCandidates.Count);
+
+        Shuffle(exactCoverCandidates, random);
+
+        for (int i = 0; i < targetExactCoverCount; i++)
+        {
+            exactCoverPositions.Add(exactCoverCandidates[i]);
+        }
+
+        return exactCoverPositions;
+    }
+
+    private void Shuffle<T>(List<T> items, System.Random random)
+    {
+        for (int i = items.Count - 1; i > 0; i--)
+        {
+            int swapIndex = random.Next(i + 1);
+            T current = items[i];
+            items[i] = items[swapIndex];
+            items[swapIndex] = current;
+        }
+    }
+
     private List<StagePieceStock> BuildPieceStocks(List<GeneratedPiece> placements)
     {
         Dictionary<PieceData, int> stockCounts = new Dictionary<PieceData, int>();
 
         foreach (GeneratedPiece placement in placements)
         {
+            if (placement.IsFixed)
+            {
+                continue;
+            }
+
             if (stockCounts.ContainsKey(placement.PieceData))
             {
                 stockCounts[placement.PieceData]++;
@@ -348,6 +486,27 @@ public class StageAutoGeneratorWindow : EditorWindow
         return pieceStocks;
     }
 
+    private List<FixedPieceData> BuildFixedPieces(List<GeneratedPiece> placements)
+    {
+        List<FixedPieceData> fixedPieces = new List<FixedPieceData>();
+
+        foreach (GeneratedPiece placement in placements)
+        {
+            if (!placement.IsFixed)
+            {
+                continue;
+            }
+
+            fixedPieces.Add(new FixedPieceData
+            {
+                pieceData = placement.PieceData,
+                position = placement.Position
+            });
+        }
+
+        return fixedPieces;
+    }
+
     private string BuildAuthorNote(int seed, List<GeneratedPiece> placements)
     {
         StringBuilder builder = new StringBuilder();
@@ -357,7 +516,8 @@ public class StageAutoGeneratorWindow : EditorWindow
 
         foreach (GeneratedPiece placement in placements)
         {
-            builder.AppendLine($"{placement.PieceData.pieceType} at {placement.Position}");
+            string fixedLabel = placement.IsFixed ? " [Fixed]" : string.Empty;
+            builder.AppendLine($"{placement.PieceData.pieceType} at {placement.Position}{fixedLabel}");
         }
 
         return builder.ToString();
@@ -382,7 +542,7 @@ public class StageAutoGeneratorWindow : EditorWindow
 
         if (stageLoader == null)
         {
-            Debug.LogWarning("StageLoaderが見つからないため、自動登録をスキップしました。");
+            Debug.LogWarning("StageLoader was not found. Generated stages were not registered automatically.");
             return;
         }
 
@@ -391,7 +551,7 @@ public class StageAutoGeneratorWindow : EditorWindow
 
         if (stagesProperty == null || !stagesProperty.isArray)
         {
-            Debug.LogWarning("StageLoader.stagesが見つからないため、自動登録をスキップしました。");
+            Debug.LogWarning("StageLoader.stages was not found. Generated stages were not registered automatically.");
             return;
         }
 
@@ -504,7 +664,7 @@ public class StageAutoGeneratorWindow : EditorWindow
         }
     }
 
-    private readonly struct GeneratedPiece
+    private class GeneratedPiece
     {
         public GeneratedPiece(PieceData pieceData, Vector2Int position)
         {
@@ -514,5 +674,6 @@ public class StageAutoGeneratorWindow : EditorWindow
 
         public PieceData PieceData { get; }
         public Vector2Int Position { get; }
+        public bool IsFixed { get; set; }
     }
 }

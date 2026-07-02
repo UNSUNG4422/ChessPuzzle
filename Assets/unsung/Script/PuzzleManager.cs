@@ -16,6 +16,8 @@ public class PuzzleManager : MonoBehaviour
     [SerializeField] private GameObject clearDisplayObject;
     [SerializeField] private GameObject nextStageButton;
     [SerializeField] private bool coverageVisible = true;
+    [SerializeField] private Color normalPieceColor = Color.white;
+    [SerializeField] private Color fixedPieceColor = Color.white;
     [SerializeField] private TextMeshProUGUI coverageToggleLabel;
     [SerializeField] private Image coverageToggleButtonImage;
     [SerializeField] private Color coverageButtonOnColor = new Color(0.3f, 0.8f, 0.3f, 1f);
@@ -37,6 +39,7 @@ public class PuzzleManager : MonoBehaviour
 
     private readonly Dictionary<Vector2Int, CellView> cellMap = new Dictionary<Vector2Int, CellView>();
     private readonly Dictionary<PieceData, int> remainingPieces = new Dictionary<PieceData, int>();
+    private readonly List<FixedPieceData> fixedPieces = new List<FixedPieceData>();
     private readonly List<PlacedPieceRecord> placedPieces = new List<PlacedPieceRecord>();
     private readonly List<CellView> previewCells = new List<CellView>();
     private readonly List<PuzzleActionRecord> actionHistory = new List<PuzzleActionRecord>();
@@ -53,6 +56,7 @@ public class PuzzleManager : MonoBehaviour
         public PieceData pieceData;
         public CellView cell;
         public GameObject placedObject;
+        public bool isFixed;
     }
 
     private class PuzzleActionRecord
@@ -105,11 +109,45 @@ public class PuzzleManager : MonoBehaviour
         {
             SetCoverageTemporarilyInverted(false);
         }
+
+        if (IsGameplayInputBlocked())
+        {
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            UndoLastMove();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ResetPuzzle();
+        }
     }
 
     public void ToggleCoverageVisible()
     {
         SetCoverageVisible(!coverageVisible);
+    }
+
+    private bool IsGameplayInputBlocked()
+    {
+        StageLoader targetStageLoader = stageLoader != null
+            ? stageLoader
+            : FindFirstObjectByType<StageLoader>();
+
+        if (targetStageLoader != null && targetStageLoader.IsBlockingGameplayInput())
+        {
+            return true;
+        }
+
+        return IsPanelActive(clearPanel) || IsPanelActive(clearDisplayObject);
+    }
+
+    private bool IsPanelActive(GameObject panel)
+    {
+        return panel != null && panel.activeInHierarchy;
     }
 
     public void SetCoverageVisible(bool visible)
@@ -318,6 +356,8 @@ public class PuzzleManager : MonoBehaviour
         ClearPlacedPieces();
         actionHistory.Clear();
         InitializeRemainingPieces();
+        PlaceFixedPieces();
+        RecalculateCoverage();
         selectedPiece = null;
 
         SetClearDisplayVisible(false);
@@ -352,6 +392,7 @@ public class PuzzleManager : MonoBehaviour
         ClearPreview();
         ClearPlacedPieces();
         actionHistory.Clear();
+        fixedPieces.Clear();
 
         pieceStocks = newPieceStocks != null
             ? new List<StagePieceStock>(newPieceStocks)
@@ -373,7 +414,21 @@ public class PuzzleManager : MonoBehaviour
             return;
         }
 
-        LoadPieceStocks(stageData.pieceStocks);
+        ClearPreview();
+        ClearPlacedPieces();
+        actionHistory.Clear();
+
+        pieceStocks = stageData.pieceStocks != null
+            ? new List<StagePieceStock>(stageData.pieceStocks)
+            : new List<StagePieceStock>();
+        fixedPieces.Clear();
+
+        if (stageData.fixedPieces != null)
+        {
+            fixedPieces.AddRange(stageData.fixedPieces);
+        }
+
+        ResetPuzzle();
     }
 
     public void HideClearDisplay()
@@ -435,7 +490,7 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    private GameObject PlacePiece(CellView cell, PieceData pieceData)
+    private GameObject PlacePiece(CellView cell, PieceData pieceData, bool isFixed)
     {
         cell.SetPiece(true);
 
@@ -447,7 +502,7 @@ public class PuzzleManager : MonoBehaviour
 
         Transform parent = placedPieceRoot != null ? placedPieceRoot : transform;
         GameObject placedPiece = Instantiate(placedPiecePrefab, cell.transform.position, Quaternion.identity, parent);
-        placedPiece.name = $"Placed_{pieceData.pieceType}_{cell.GridPosition.x}_{cell.GridPosition.y}";
+        placedPiece.name = $"{(isFixed ? "Fixed" : "Placed")}_{pieceData.pieceType}_{cell.GridPosition.x}_{cell.GridPosition.y}";
 
         SpriteRenderer spriteRenderer = placedPiece.GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
@@ -463,28 +518,71 @@ public class PuzzleManager : MonoBehaviour
         if (pieceData.icon != null)
         {
             spriteRenderer.sprite = pieceData.icon;
-            spriteRenderer.color = Color.white;
+            spriteRenderer.color = isFixed ? fixedPieceColor : normalPieceColor;
         }
         else
         {
-            spriteRenderer.color = Color.yellow;
+            spriteRenderer.color = isFixed ? fixedPieceColor : Color.yellow;
         }
 
         return placedPiece;
     }
 
-    private PlacedPieceRecord PlacePieceInternal(CellView cell, PieceData pieceData)
+    private PlacedPieceRecord PlacePieceInternal(CellView cell, PieceData pieceData, bool isFixed = false)
     {
-        GameObject placedObject = PlacePiece(cell, pieceData);
+        GameObject placedObject = PlacePiece(cell, pieceData, isFixed);
         PlacedPieceRecord record = new PlacedPieceRecord
         {
             pieceData = pieceData,
             cell = cell,
-            placedObject = placedObject
+            placedObject = placedObject,
+            isFixed = isFixed
         };
 
         placedPieces.Add(record);
         return record;
+    }
+
+    private void PlaceFixedPieces()
+    {
+        foreach (FixedPieceData fixedPiece in fixedPieces)
+        {
+            if (fixedPiece == null)
+            {
+                continue;
+            }
+
+            PlaceFixedPiece(fixedPiece.pieceData, fixedPiece.position);
+        }
+    }
+
+    private void PlaceFixedPiece(PieceData pieceData, Vector2Int position)
+    {
+        if (pieceData == null)
+        {
+            Debug.LogWarning($"Fixed piece at {position} has no PieceData.");
+            return;
+        }
+
+        if (!cellMap.TryGetValue(position, out CellView cell) || cell == null)
+        {
+            Debug.LogWarning($"Fixed piece target cell {position} was not found.");
+            return;
+        }
+
+        if (!cell.IsActive)
+        {
+            Debug.LogWarning($"Cannot place a fixed piece on inactive cell {position}.");
+            return;
+        }
+
+        if (cell.HasPiece)
+        {
+            Debug.LogWarning($"Cannot place a fixed piece on occupied cell {position}.");
+            return;
+        }
+
+        PlacePieceInternal(cell, pieceData, true);
     }
 
     private void RemovePlacedPieceInternal(PlacedPieceRecord record)
@@ -547,6 +645,11 @@ public class PuzzleManager : MonoBehaviour
         if (record == null)
         {
             Debug.LogWarning($"No placed piece record found at {cell.GridPosition}.");
+            return;
+        }
+
+        if (record.isFixed)
+        {
             return;
         }
 

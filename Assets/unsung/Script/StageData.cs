@@ -10,7 +10,26 @@ public class StageData : ScriptableObject
     public string boardText;
 
     public List<StagePieceStock> pieceStocks = new List<StagePieceStock>();
+    public List<FixedPieceData> fixedPieces = new List<FixedPieceData>();
+    public HelpPageType helpPageToUnlock = HelpPageType.None;
+    public bool forceShowHelpOnFirstUnlock = true;
+    public HelpPageType helpPageToShowEveryTime = HelpPageType.None;
 
     [TextArea(3, 10)]
     public string authorNote;
+}
+
+public enum HelpPageType
+{
+    None,
+    HelpA_Basic,
+    HelpB_ExactCover,
+    HelpC_FixedPieces
+}
+
+[System.Serializable]
+public class FixedPieceData
+{
+    public PieceData pieceData;
+    public Vector2Int position;
 }

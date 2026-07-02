@@ -115,6 +115,7 @@ MonoBehaviour:
   exactCoverVisualRoot: {fileID: 0}
   exactCoverFrame: {fileID: 0}
   exactCoverTextRoot: {fileID: 0}
+  exactCoverTextBackground: {fileID: 0}
   exactCoverTextOutline: {fileID: 0}
   exactCoverText: {fileID: 0}
   exactCoverFontAsset: {fileID: 11400000, guid: ef43f2af749508d448a69fbeab935c4f, type: 2}
@@ -122,16 +123,24 @@ MonoBehaviour:
   normalColor: {r: 0.15686275, g: 0.15686275, b: 0.15686275, a: 1}
   inactiveColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   coverageOverlayColor: {r: 0, g: 1, b: 0, a: 0.25}
-  exactCoverFrameDefaultColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  exactCoverFrameColor1: {r: 0, g: 1, b: 1, a: 1}
-  exactCoverFrameColor2: {r: 0, g: 0, b: 1, a: 1}
-  exactCoverFrameColor3: {r: 1, g: 0, b: 0, a: 1}
-  exactCoverFrameColor4: {r: 0.6, g: 0.2, b: 1, a: 1}
-  exactCoverFrameColor5: {r: 1, g: 0.5, b: 0, a: 1}
+  exactCoverFrameDefaultColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 0.78431374}
+  exactCoverFrameColor1: {r: 0, g: 1, b: 1, a: 0.78431374}
+  exactCoverFrameColor2: {r: 0, g: 0, b: 1, a: 0.78431374}
+  exactCoverFrameColor3: {r: 1, g: 0, b: 0, a: 0.78431374}
+  exactCoverFrameColor4: {r: 0.6, g: 0.2, b: 1, a: 0.78431374}
+  exactCoverFrameColor5: {r: 1, g: 0.5, b: 0, a: 0.78431374}
   exactCoverTextColor: {r: 1, g: 1, b: 1, a: 1}
   exactCoverCompleteTextColor: {r: 1, g: 0.97120583, b: 0, a: 1}
-  exactCoverOverTextColor: {r: 1, g: 0, b: 0, a: 1}
-  exactCoverTextMainFontSize: 5
+  exactCoverOverTextColor: {r: 0.6226415, g: 0, b: 0, a: 1}
+  exactCoverTextLocalPosition: {x: 0.28, y: -0.25, z: 0}
+  exactCoverTextFontSize: 3
+  exactCoverTextBackgroundSprite: {fileID: -2413806693520163455, guid: 80b291e80d97146468a9d22a02a2dee2, type: 3}
+  exactCoverTextBackgroundColor: {r: 0.7169812, g: 0.7169812, b: 0.7169812, a: 1}
+  exactCoverTextBackgroundLocalPosition: {x: 0.28, y: -0.25, z: 0}
+  exactCoverTextBackgroundLocalScale: {x: 0.3, y: 0.3, z: 1}
+  exactCoverFrameSortingOrder: 8
+  exactCoverTextBackgroundSortingOrder: 11
+  exactCoverTextSortingOrder: 12
 --- !u!61 &4452459894999284419
 BoxCollider2D:
   m_ObjectHideFlags: 0

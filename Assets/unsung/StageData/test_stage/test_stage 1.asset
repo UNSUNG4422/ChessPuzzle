@@ -10,29 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
-  m_Name: StageData_000
+  m_Name: test_stage 1
   m_EditorClassIdentifier: 
-  stageName: TEST_STAGE
-  boardText: 'ZZZXXZ
+  stageName: 
+  boardText: 'ZZZZZZ
 
-    ZZZZXX
+    Z2ZZZZ
 
-    1ZZXXZ
+    ZZZZZZ
 
-    ZXZZXZ
+    ZZZZZZ
 
-    ZZZ2Z2
+    Z2ZZ2Z
 
-    ZZXZX2'
+    ZZZZZZ
+
+'
   pieceStocks:
   - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
     count: 1
-  - pieceData: {fileID: 11400000, guid: 0b29ea0441ca0984cb52026ae16eddff, type: 2}
-    count: 1
   - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
     count: 1
-  - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
-    count: 1
-  - pieceData: {fileID: 11400000, guid: d6c6c1fac4af9d74a9ce94a57ec9b0fc, type: 2}
-    count: 1
+  fixedPieces: []
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 1
+  helpPageToShowEveryTime: 0
   authorNote: 
