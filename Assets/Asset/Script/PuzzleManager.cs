@@ -14,6 +14,8 @@ public class PuzzleManager : MonoBehaviour
     [SerializeField] private GameObject clearPanel;
     [SerializeField] private GameObject clearDisplayObject;
     [SerializeField] private GameObject nextStageButton;
+    [SerializeField] private bool coverageVisible = true;
+    [SerializeField] private TextMeshProUGUI coverageToggleLabel;
     [SerializeField] private StageLoader stageLoader;
     [SerializeField] private PieceData selectedPiece;
     [SerializeField] private AudioClip selectPieceSE;
@@ -74,6 +76,8 @@ public class PuzzleManager : MonoBehaviour
 
         SetClearDisplayVisible(false);
         SetNextStageButtonVisible(false);
+        RefreshCoverageVisibility();
+        RefreshCoverageToggleLabel();
         RefreshAllPieceButtons();
     }
 
@@ -83,6 +87,26 @@ public class PuzzleManager : MonoBehaviour
         {
             Instance = null;
         }
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            ToggleCoverageVisible();
+        }
+    }
+
+    public void ToggleCoverageVisible()
+    {
+        SetCoverageVisible(!coverageVisible);
+    }
+
+    public void SetCoverageVisible(bool visible)
+    {
+        coverageVisible = visible;
+        RefreshCoverageVisibility();
+        RefreshCoverageToggleLabel();
     }
 
     public void SelectPiece(PieceData pieceData)
@@ -309,6 +333,8 @@ public class PuzzleManager : MonoBehaviour
         ClearPlacedPieces();
         actionHistory.Clear();
         BuildCellMap();
+        RefreshCoverageVisibility();
+        RefreshCoverageToggleLabel();
     }
 
     public void LoadPieceStocks(List<StagePieceStock> newPieceStocks)
@@ -635,6 +661,27 @@ public class PuzzleManager : MonoBehaviour
             }
 
             UpdateCoverage(placedPiece.cell.GridPosition, placedPiece.pieceData.pieceType);
+        }
+
+        RefreshCoverageVisibility();
+    }
+
+    private void RefreshCoverageVisibility()
+    {
+        foreach (CellView cell in cells)
+        {
+            if (cell != null)
+            {
+                cell.SetCoverageVisible(coverageVisible);
+            }
+        }
+    }
+
+    private void RefreshCoverageToggleLabel()
+    {
+        if (coverageToggleLabel != null)
+        {
+            coverageToggleLabel.text = coverageVisible ? "Coverage ON" : "Coverage OFF";
         }
     }
 
