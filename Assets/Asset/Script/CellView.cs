@@ -19,6 +19,11 @@ public class CellView : MonoBehaviour
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color inactiveColor = Color.gray;
 
+    [Header("Coverage")]
+    [SerializeField] private Color coverageOverlayColor = new Color(0f, 1f, 0f, 0.25f);
+
+    private bool coverageVisible = true;
+
     private void Awake()
     {
         if (spriteRenderer == null)
@@ -43,7 +48,7 @@ public class CellView : MonoBehaviour
     {
         if (PuzzleManager.Instance == null)
         {
-            Debug.LogWarning("PuzzleManagerがシーンに見つかりません。");
+            Debug.LogWarning("PuzzleManager was not found in the scene.");
             return;
         }
 
@@ -82,6 +87,12 @@ public class CellView : MonoBehaviour
         }
     }
 
+    public void SetCellColor(Color color)
+    {
+        normalColor = color;
+        UpdateVisual();
+    }
+
     public void SetActiveState(bool active)
     {
         IsActive = active;
@@ -107,6 +118,12 @@ public class CellView : MonoBehaviour
         UpdateVisual();
     }
 
+    public void SetCoverageVisible(bool visible)
+    {
+        coverageVisible = visible;
+        UpdateVisual();
+    }
+
     public void SetPreview(bool preview)
     {
         if (previewOverlay != null)
@@ -117,20 +134,17 @@ public class CellView : MonoBehaviour
 
     private void UpdateVisual()
     {
-        // Cell本体の色
         if (spriteRenderer != null)
         {
             spriteRenderer.color = IsActive ? normalColor : inactiveColor;
         }
 
-        // 移動範囲Overlay
-        // 駒が置かれているマスでは緑を出さず、黄色を優先する
         if (coverageOverlay != null)
         {
-            coverageOverlay.SetActive(IsActive && IsCovered);
+            ApplyOverlayColor(coverageOverlay, coverageOverlayColor);
+            coverageOverlay.SetActive(IsActive && IsCovered && coverageVisible && !HasPiece);
         }
 
-        // 駒が置かれたマス用Overlay
         if (pieceOverlay != null)
         {
             pieceOverlay.SetActive(IsActive && HasPiece);
@@ -139,6 +153,26 @@ public class CellView : MonoBehaviour
         if (previewOverlay != null && (!IsActive || HasPiece))
         {
             previewOverlay.SetActive(false);
+        }
+    }
+
+    private void ApplyOverlayColor(GameObject overlayObject, Color color)
+    {
+        SpriteRenderer overlayRenderer = overlayObject.GetComponent<SpriteRenderer>();
+
+        if (overlayRenderer != null)
+        {
+            overlayRenderer.color = color;
+        }
+
+        SpriteRenderer[] childRenderers = overlayObject.GetComponentsInChildren<SpriteRenderer>(true);
+
+        foreach (SpriteRenderer childRenderer in childRenderers)
+        {
+            if (childRenderer != null)
+            {
+                childRenderer.color = color;
+            }
         }
     }
 }
