@@ -135,6 +135,39 @@ public class BoardGenerator : MonoBehaviour
         GenerateBoard();
     }
 
+    public bool TryGetBoardBounds(out Bounds bounds)
+    {
+        Transform root = boardRoot != null ? boardRoot : transform;
+        CellView[] cells = root.GetComponentsInChildren<CellView>();
+        bool hasBounds = false;
+        bounds = default;
+
+        foreach (CellView cell in cells)
+        {
+            if (cell == null || !cell.IsActive)
+            {
+                continue;
+            }
+
+            Renderer renderer = cell.GetComponentInChildren<Renderer>();
+            Bounds cellBounds = renderer != null
+                ? renderer.bounds
+                : new Bounds(cell.transform.position, Vector3.one * cellSpacing);
+
+            if (!hasBounds)
+            {
+                bounds = cellBounds;
+                hasBounds = true;
+            }
+            else
+            {
+                bounds.Encapsulate(cellBounds);
+            }
+        }
+
+        return hasBounds;
+    }
+
     public void ClearBoard()
     {
         Transform root = boardRoot != null ? boardRoot : transform;

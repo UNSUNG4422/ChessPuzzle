@@ -10,6 +10,13 @@ public class StageLoaderEditor : Editor
 
         EditorGUILayout.Space();
 
+        if (GUILayout.Button("Unlock All Stages"))
+        {
+            StageLoader stageLoader = (StageLoader)target;
+            stageLoader.UnlockAllStagesForDebug();
+            EditorUtility.SetDirty(stageLoader);
+        }
+
         if (GUILayout.Button("Reset Stage Progress"))
         {
             StageLoader stageLoader = (StageLoader)target;

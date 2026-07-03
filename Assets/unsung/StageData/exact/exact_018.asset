@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
+  m_Name: exact_018
+  m_EditorClassIdentifier: 
+  stageName: exact0_008
+  boardText: 'XZZZZ1
+
+    ZZZZZ2
+
+    XZZZZZ
+
+    1X1XZZ
+
+    XX1XX2
+
+    Z12ZZZ'
+  stageCategory: 2
+  pieceStocks:
+  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+    count: 2
+  - pieceData: {fileID: 11400000, guid: 3b56d96a56007d54d84f5c6e870817c1, type: 2}
+    count: 1
+  - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
+    count: 1
+  fixedPieces: []
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 0
+  helpPageToShowEveryTime: 0
+  authorNote: 'Auto generated stage.
+
+    Mode: RandomProfile
+
+    Profile: PawnIntro
+
+    Shape
+    Bias: Dense
+
+    Seed: 880400273
+
+    Removed Cells: 8
+
+    Answer placements:
+
+    Pawn
+    at (4, 4)
+
+    Pawn at (4, 3)
+
+    Queen at (2, 4)
+
+    Rook at (5, 0)
+
+
+
+    Solver
+    evaluation:
+
+    Final Score: 75
+
+    Solvable: True
+
+    Solution Count: 8
+
+    Min
+    Pieces Used: 4
+
+    Requires All Pieces: True
+
+    Constrained Cell Count: 0
+
+    Min
+    Cover Candidate Count: 7
+
+    Shape Hint Score: 12
+
+    Total Normal Piece Count:
+    4
+
+    Exact Cell Count: 8
+
+    Exact Cell Rate: 0.29
+
+    Exact Number Variety:
+    1/2
+
+    No Exact Solution Count: 8
+
+    Solution Score: 15
+
+    All Pieces Score:
+    50
+
+    Exact Cell Count Score: 10
+
+    Exact Number Variety Score: 10
+
+    Solution
+    Reduction Score: 0
+
+    Piece Role Score: 20
+
+    Board Shape Score: 20
+
+    Connected
+    Component Count: 2
+
+    Small Island Count: 1
+
+    Small Island Penalty: -30
+
+    Isolated
+    Piece Penalty: 0
+
+    Piece Spread Penalty: 0
+
+    Tiny Island With Piece Penalty:
+    0
+
+    Exact On Tiny Island Penalty: -15
+
+    Unnatural Long Range Penalty: 0
+
+'

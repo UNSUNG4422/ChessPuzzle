@@ -12,15 +12,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
   m_Name: standard 0
   m_EditorClassIdentifier: 
-  stageName: standard
-  boardText: 'Z
+  stageName: "\u99D2\u3092\u7F6E\u304F"
+  boardText: 'ZZZXXX
 
-    Z'
+    ZZZXZX
+
+    ZZZZZZ
+
+    XXZZZX
+
+    XZZZZZ
+
+    XXZZZX'
+  stageCategory: 1
   pieceStocks:
-  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+  - pieceData: {fileID: 11400000, guid: d6c6c1fac4af9d74a9ce94a57ec9b0fc, type: 2}
     count: 1
+  - pieceData: {fileID: 11400000, guid: 0b29ea0441ca0984cb52026ae16eddff, type: 2}
+    count: 1
+  - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
+    count: 1
+  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+    count: 2
   fixedPieces: []
-  helpPageToUnlock: 1
-  forceShowHelpOnFirstUnlock: 1
-  helpPageToShowEveryTime: 1
-  authorNote: 
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 0
+  helpPageToShowEveryTime: 0
+  authorNote: 'Created with Answer Based Stage Editor.
+
+    Answer placements:
+
+    King
+    at (1, 4)
+
+    Knight at (3, 2)
+
+    Rook at (2, 3)
+
+    Pawn at (4, 1)
+
+    Pawn
+    at (3, 0)
+
+'

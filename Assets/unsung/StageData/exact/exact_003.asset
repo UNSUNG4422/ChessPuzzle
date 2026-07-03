@@ -1,0 +1,132 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
+  m_Name: exact_003
+  m_EditorClassIdentifier: 
+  stageName: exact_003
+  boardText: 'XXXXXX
+
+    XXXZXX
+
+    XXXZZZ
+
+    XXXZZZ
+
+    XXZ222
+
+    XXZZZZ'
+  stageCategory: 2
+  pieceStocks:
+  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+    count: 2
+  - pieceData: {fileID: 11400000, guid: d6c6c1fac4af9d74a9ce94a57ec9b0fc, type: 2}
+    count: 2
+  fixedPieces: []
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 0
+  helpPageToShowEveryTime: 0
+  authorNote: 'Auto generated stage.
+
+    Mode: RandomProfile
+
+    Profile: PawnIntro
+
+    Shape
+    Bias: Dense
+
+    Seed: 1777076959
+
+    Removed Cells: 21
+
+    Answer placements:
+
+    Pawn
+    at (3, 3)
+
+    King at (4, 2)
+
+    King at (3, 0)
+
+    Pawn at (5, 0)
+
+    
+
+    Solver
+    evaluation:
+
+    Final Score: 150
+
+    Solvable: True
+
+    Solution Count:
+    10
+
+    Min Pieces Used: 4
+
+    Requires All Pieces: True
+
+    Constrained
+    Cell Count: 0
+
+    Min Cover Candidate Count: 10
+
+    Shape Hint Score: 18
+
+    Total
+    Normal Piece Count: 4
+
+    Exact Cell Count: 3
+
+    Exact Cell Rate: 0.20
+
+    Exact
+    Number Variety: 2
+
+    No Exact Solution Count: 10
+
+    Solution Score: 15
+
+    All
+    Pieces Score: 50
+
+    Exact Cell Count Score: 10
+
+    Exact Number Variety
+    Score: 10
+
+    Solution Reduction Score: 0
+
+    Piece Role Score: 20
+
+    Board
+    Shape Score: 30
+
+    Connected Component Count: 1
+
+    Small Island Count:
+    0
+
+    Small Island Penalty: 0
+
+    Isolated Piece Penalty: 0
+
+    Piece Spread
+    Penalty: 0
+
+    Tiny Island With Piece Penalty: 0
+
+    Exact On Tiny Island
+    Penalty: 0
+
+    Unnatural Long Range Penalty: 0
+
+'

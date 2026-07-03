@@ -9,6 +9,7 @@ public class StageData : ScriptableObject
     [TextArea(5, 15)]
     public string boardText;
 
+    public StageCategory stageCategory = StageCategory.Standard;
     public List<StagePieceStock> pieceStocks = new List<StagePieceStock>();
     public List<FixedPieceData> fixedPieces = new List<FixedPieceData>();
     public HelpPageType helpPageToUnlock = HelpPageType.None;
@@ -25,6 +26,15 @@ public enum HelpPageType
     HelpA_Basic,
     HelpB_ExactCover,
     HelpC_FixedPieces
+}
+
+public enum StageCategory
+{
+    Tutorial,
+    Standard,
+    ExactCover,
+    FixedPiece,
+    Advanced
 }
 
 [System.Serializable]

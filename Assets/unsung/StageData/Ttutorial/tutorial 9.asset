@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
+  m_Name: tutorial 9
+  m_EditorClassIdentifier: 
+  stageName: standard
+  boardText: 'XXZZZZZXX
+
+    XZXXXXXZX
+
+    ZXXZXZXXZ
+
+    ZXXZXZXXZ
+
+    ZXXXXXXXZ
+
+    ZXZXXXZXZ
+
+    ZXXZZZXXZ
+
+    XZXXXXXZX
+
+    XXZZZZZXX'
+  stageCategory: 0
+  pieceStocks:
+  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+    count: 3
+  - pieceData: {fileID: 11400000, guid: 0b29ea0441ca0984cb52026ae16eddff, type: 2}
+    count: 2
+  - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
+    count: 4
+  - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
+    count: 2
+  fixedPieces: []
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 0
+  helpPageToShowEveryTime: 0
+  authorNote: 'Created with Answer Based Stage Editor.
+
+    Answer placements:
+
+    Pawn
+    at (3, 5)
+
+    Pawn at (5, 5)
+
+    Knight at (7, 1)
+
+    Knight at (1, 1)
+
+    Pawn
+    at (4, 2)
+
+    Rook at (4, 0)
+
+    Rook at (0, 5)
+
+    Rook at (8, 5)
+
+    Rook
+    at (4, 8)
+
+    Bishop at (0, 6)
+
+    Bishop at (8, 6)
+
+'

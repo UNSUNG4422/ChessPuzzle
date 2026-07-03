@@ -36,6 +36,7 @@ public class PuzzleManager : MonoBehaviour
     [SerializeField, Range(0f, 2f)] private float resetSEVolume = 1f;
     [SerializeField] private AudioClip clearSE;
     [SerializeField, Range(0f, 2f)] private float clearSEVolume = 1f;
+    [SerializeField] private bool isCleared;
 
     private readonly Dictionary<Vector2Int, CellView> cellMap = new Dictionary<Vector2Int, CellView>();
     private readonly Dictionary<PieceData, int> remainingPieces = new Dictionary<PieceData, int>();
@@ -85,6 +86,7 @@ public class PuzzleManager : MonoBehaviour
 
         SetClearDisplayVisible(false);
         SetNextStageButtonVisible(false);
+        isCleared = false;
         RefreshCoverageVisibility();
         RefreshCoverageToggleButtonView();
         RefreshAllPieceButtons();
@@ -359,6 +361,7 @@ public class PuzzleManager : MonoBehaviour
         PlaceFixedPieces();
         RecalculateCoverage();
         selectedPiece = null;
+        isCleared = false;
 
         SetClearDisplayVisible(false);
         SetNextStageButtonVisible(false);
@@ -383,6 +386,7 @@ public class PuzzleManager : MonoBehaviour
         ClearPlacedPieces();
         actionHistory.Clear();
         BuildCellMap();
+        isCleared = false;
         RefreshCoverageVisibility();
         RefreshCoverageToggleButtonView();
     }
@@ -400,6 +404,7 @@ public class PuzzleManager : MonoBehaviour
 
         InitializeRemainingPieces();
         selectedPiece = null;
+        isCleared = false;
 
         SetClearDisplayVisible(false);
         SetNextStageButtonVisible(false);
@@ -435,6 +440,11 @@ public class PuzzleManager : MonoBehaviour
     {
         SetClearDisplayVisible(false);
         SetNextStageButtonVisible(false);
+    }
+
+    public void DebugClearCurrentStage()
+    {
+        HandleStageCleared();
     }
 
     private void BuildCellMap()
@@ -913,22 +923,77 @@ public class PuzzleManager : MonoBehaviour
             }
         }
 
-        SetClearDisplayVisible(true);
-        SetNextStageButtonVisible(true);
+        HandleStageCleared();
+    }
+
+    private void HandleStageCleared()
+    {
+        if (isCleared)
+        {
+            return;
+        }
+
+        isCleared = true;
+
         PlaySE(clearSE, clearSEVolume);
         UnlockNextStage();
+
+        StageLoader targetStageLoader = GetStageLoader();
+
+        if (targetStageLoader != null && targetStageLoader.IsFinalStage())
+        {
+            ShowNormalClearUI();
+            ShowNextStageButton();
+            return;
+        }
+
+        if (targetStageLoader != null && targetStageLoader.IsLastStageOfCurrentCategory())
+        {
+            HideNormalClearUI();
+            ShowNextStageButton();
+            targetStageLoader.ShowCategoryClear();
+            return;
+        }
+
+        ShowNormalClearUI();
+        ShowNextStageButton();
+    }
+
+    private void ShowNormalClearUI()
+    {
+        SetClearDisplayVisible(true);
+    }
+
+    private void HideNormalClearUI()
+    {
+        SetClearDisplayVisible(false);
+    }
+
+    private void ShowNextStageButton()
+    {
+        SetNextStageButtonVisible(true);
+    }
+
+    private void HideNextStageButton()
+    {
+        SetNextStageButtonVisible(false);
     }
 
     private void UnlockNextStage()
     {
-        StageLoader targetStageLoader = stageLoader != null
-            ? stageLoader
-            : FindFirstObjectByType<StageLoader>();
+        StageLoader targetStageLoader = GetStageLoader();
 
         if (targetStageLoader != null)
         {
             targetStageLoader.UnlockNextStage();
         }
+    }
+
+    private StageLoader GetStageLoader()
+    {
+        return stageLoader != null
+            ? stageLoader
+            : FindFirstObjectByType<StageLoader>();
     }
 
     private void SetClearDisplayVisible(bool visible)
@@ -953,6 +1018,18 @@ public class PuzzleManager : MonoBehaviour
         {
             Debug.Log("Clear!");
         }
+    }
+
+    public void SetNextStageButtonVisibleExternal(bool visible)
+    {
+        SetNextStageButtonVisible(visible);
+    }
+
+    public void HideClearUiForStageStart()
+    {
+        SetClearDisplayVisible(false);
+        SetNextStageButtonVisible(false);
+        isCleared = false;
     }
 
     private void SetNextStageButtonVisible(bool visible)

@@ -19,9 +19,27 @@ public class StageLoader : MonoBehaviour
     [SerializeField] private GameObject allClearPanel;
     [SerializeField] private BoardGenerator boardGenerator;
     [SerializeField] private PuzzleManager puzzleManager;
+    [Header("Camera Fit")]
+    [SerializeField] private Camera targetCamera;
+    [SerializeField] private float cameraPadding = 1.0f;
+    [SerializeField] private float minOrthographicSize = 3.5f;
+    [SerializeField] private float maxOrthographicSize = 12f;
+    [SerializeField] private Vector2 cameraOffset = Vector2.zero;
     [SerializeField] private GameObject stageSelectPanel;
+    [SerializeField] private Transform stageGroupContainer;
+    [SerializeField] private GameObject stageGroupPrefab;
     [SerializeField] private Transform stageButtonContainer;
     [SerializeField] private GameObject stageButtonPrefab;
+    [Header("Stage Select Manual Layout")]
+    [SerializeField] private int stageButtonsPerRow = 10;
+    [SerializeField] private float stageButtonWidth = 68f;
+    [SerializeField] private float stageButtonHeight = 68f;
+    [SerializeField] private float stageButtonSpacingX = 14f;
+    [SerializeField] private float stageButtonSpacingY = 10f;
+    [SerializeField] private float categoryTitleHeight = 28f;
+    [SerializeField] private float titleToButtonSpacing = 6f;
+    [SerializeField] private float categorySpacing = 16f;
+    [SerializeField] private Vector2 stageSelectStartPosition = new Vector2(20f, -20f);
     [SerializeField] private GameObject titlePanel;
     [SerializeField] private GameObject pauseMenuPanel;
     [SerializeField] private GameObject gameUIPanel;
@@ -34,6 +52,10 @@ public class StageLoader : MonoBehaviour
     [SerializeField] private TextMeshProUGUI helpMessageText;
     [SerializeField] private Image helpImage;
     [SerializeField] private List<HelpPageData> helpPages = new List<HelpPageData>();
+    [SerializeField] private List<CategoryClearMessage> categoryClearMessages = new List<CategoryClearMessage>();
+    [SerializeField, TextArea(1, 3)] private string defaultCategoryClearMessage = "ステージクリア！";
+    [SerializeField, TextArea(1, 3)] private string allClearMessage = "ALL CLEAR!";
+    [SerializeField] private bool unlockAllStagesOnStart = false;
     [SerializeField] private bool showTitleOnStart = true;
     [SerializeField] private AudioClip titleBGM;
     [SerializeField] private AudioClip gameBGM;
@@ -49,6 +71,14 @@ public class StageLoader : MonoBehaviour
     [SerializeField, Range(0f, 2f)] private float allClearSEVolume = 1f;
 
     private HelpPageData currentDisplayedHelpPage;
+    private StageSelectOpenSource stageSelectOpenSource = StageSelectOpenSource.Game;
+
+    private enum StageSelectOpenSource
+    {
+        Title,
+        Pause,
+        Game
+    }
 
     private void Start()
     {
@@ -61,6 +91,11 @@ public class StageLoader : MonoBehaviour
         }
 
         LoadStageProgress();
+
+        if (unlockAllStagesOnStart)
+        {
+            UnlockAllStagesForDebug();
+        }
 
         if (showTitleOnStart)
         {
@@ -97,6 +132,7 @@ public class StageLoader : MonoBehaviour
         SaveLastPlayedStageIndex(currentStageIndex);
         currentStage = stages[index];
         PlayBGM(gameBGM);
+        HideGameplayClearUi();
         SetPanelVisible(helpPanel, false);
         SetPanelVisible(titlePanel, false);
         SetPanelVisible(pauseMenuPanel, false);
@@ -104,7 +140,7 @@ public class StageLoader : MonoBehaviour
         SetAllClearPanelVisible(false);
         LoadStage(currentStage);
         UpdateStageText();
-        CloseStageSelect();
+        CloseStageSelectSilently();
         Debug.Log($"[HELP DEBUG] Loaded stage index={index}, stage={currentStage?.name}");
         Debug.Log($"[HELP DEBUG] unlock={currentStage.helpPageToUnlock}, everyTime={currentStage.helpPageToShowEveryTime}");
         ProcessStageHelp(currentStage);
@@ -182,18 +218,12 @@ public class StageLoader : MonoBehaviour
 
     public void OpenStageSelectFromTitle()
     {
-        SetPanelVisible(helpPanel, false);
-        SetPanelVisible(titlePanel, false);
-        SetPanelVisible(pauseMenuPanel, false);
-        SetPanelVisible(gameUIPanel, false);
-        OpenStageSelect();
+        OpenStageSelect(StageSelectOpenSource.Title);
     }
 
     public void OpenStageSelectFromPause()
     {
-        SetPanelVisible(helpPanel, false);
-        SetPanelVisible(pauseMenuPanel, false);
-        OpenStageSelect();
+        OpenStageSelect(StageSelectOpenSource.Pause);
     }
 
     public void OpenHelp()
@@ -287,10 +317,33 @@ public class StageLoader : MonoBehaviour
         BuildStageSelectButtons();
     }
 
+    public void UnlockAllStagesForDebug()
+    {
+        if (stages == null || stages.Count == 0)
+        {
+            highestUnlockedStageIndex = 0;
+            SaveStageProgress();
+            return;
+        }
+
+        highestUnlockedStageIndex = stages.Count - 1;
+        SaveStageProgress();
+        BuildStageSelectButtons();
+    }
+
     public void OpenStageSelect()
     {
+        OpenStageSelect(GetStageSelectOpenSourceFromActivePanel());
+    }
+
+    private void OpenStageSelect(StageSelectOpenSource openSource)
+    {
+        stageSelectOpenSource = openSource;
         PlaySE(buttonSE, buttonSEVolume);
         SetPanelVisible(helpPanel, false);
+        SetPanelVisible(titlePanel, false);
+        SetPanelVisible(pauseMenuPanel, false);
+        SetPanelVisible(gameUIPanel, false);
         BuildStageSelectButtons();
 
         if (stageSelectPanel != null)
@@ -303,6 +356,25 @@ public class StageLoader : MonoBehaviour
     {
         PlaySE(cancelSE, cancelSEVolume);
         CloseStageSelectSilently();
+
+        switch (stageSelectOpenSource)
+        {
+            case StageSelectOpenSource.Title:
+                SetPanelVisible(titlePanel, true);
+                SetPanelVisible(pauseMenuPanel, false);
+                SetPanelVisible(gameUIPanel, false);
+                break;
+            case StageSelectOpenSource.Pause:
+                SetPanelVisible(titlePanel, false);
+                SetPanelVisible(pauseMenuPanel, true);
+                SetPanelVisible(gameUIPanel, false);
+                break;
+            case StageSelectOpenSource.Game:
+                SetPanelVisible(titlePanel, false);
+                SetPanelVisible(pauseMenuPanel, false);
+                SetPanelVisible(gameUIPanel, true);
+                break;
+        }
     }
 
     private void CloseStageSelectSilently()
@@ -342,6 +414,7 @@ public class StageLoader : MonoBehaviour
         {
             targetBoardGenerator.LoadBoardText(stageData.boardText);
             targetBoardGenerator.GenerateBoard();
+            FitCameraToBoard(targetBoardGenerator);
         }
 
         if (targetPuzzleManager == null)
@@ -350,7 +423,22 @@ public class StageLoader : MonoBehaviour
             return;
         }
 
+        targetPuzzleManager.HideClearUiForStageStart();
         targetPuzzleManager.LoadStage(stageData);
+    }
+
+    private void HideGameplayClearUi()
+    {
+        PuzzleManager targetPuzzleManager = puzzleManager != null
+            ? puzzleManager
+            : PuzzleManager.Instance != null
+                ? PuzzleManager.Instance
+                : FindFirstObjectByType<PuzzleManager>();
+
+        if (targetPuzzleManager != null)
+        {
+            targetPuzzleManager.HideClearUiForStageStart();
+        }
     }
 
     private void UpdateStageText()
@@ -363,60 +451,281 @@ public class StageLoader : MonoBehaviour
 
     private void BuildStageSelectButtons()
     {
-        if (stageButtonContainer == null)
-        {
-            Debug.LogWarning("StageLoader stageButtonContainer is not assigned.");
-            return;
-        }
-
         if (stageButtonPrefab == null)
         {
             Debug.LogWarning("StageLoader stageButtonPrefab is not assigned.");
             return;
         }
 
-        ConfigureStageButtonGrid();
+        Transform groupContainer = stageGroupContainer != null ? stageGroupContainer : stageButtonContainer;
 
-        for (int i = stageButtonContainer.childCount - 1; i >= 0; i--)
+        if (groupContainer == null)
         {
-            Destroy(stageButtonContainer.GetChild(i).gameObject);
+            Debug.LogWarning("StageLoader stageGroupContainer or stageButtonContainer is not assigned.");
+            return;
         }
+
+        DisableLayoutComponents(groupContainer.gameObject);
+        ClearChildren(groupContainer);
 
         if (stages == null)
         {
             return;
         }
 
-        for (int i = 0; i < stages.Count; i++)
-        {
-            GameObject buttonObject = Instantiate(stageButtonPrefab, stageButtonContainer);
-            StageSelectButton stageSelectButton = buttonObject.GetComponent<StageSelectButton>();
+        float currentY = stageSelectStartPosition.y;
 
-            if (stageSelectButton == null)
+        foreach (StageCategory category in System.Enum.GetValues(typeof(StageCategory)))
+        {
+            List<int> stageIndices = GetStageIndicesByCategory(category);
+
+            if (stageIndices.Count == 0)
             {
-                Debug.LogWarning($"{stageButtonPrefab.name} does not have a StageSelectButton component.");
                 continue;
             }
 
-            stageSelectButton.Setup(this, i, stages[i], IsStageUnlocked(i));
+            StageGroupView stageGroup = CreateStageGroup(category, groupContainer);
+            int buttonCount = stageIndices.Count;
+            int buttonsPerRow = Mathf.Max(1, stageButtonsPerRow);
+            int rowCount = Mathf.Max(1, Mathf.CeilToInt(buttonCount / (float)buttonsPerRow));
+            float buttonAreaHeight = rowCount * stageButtonHeight + Mathf.Max(0, rowCount - 1) * stageButtonSpacingY;
+            float groupHeight = categoryTitleHeight + titleToButtonSpacing + buttonAreaHeight + categorySpacing;
+
+            ConfigureStageGroupManualLayout(stageGroup, currentY, groupHeight, buttonAreaHeight);
+
+            for (int localIndex = 0; localIndex < stageIndices.Count; localIndex++)
+            {
+                GameObject buttonObject = CreateStageSelectButton(stageIndices[localIndex], stageGroup.buttonContainer);
+                PositionStageSelectButton(buttonObject, localIndex);
+            }
+
+            currentY -= groupHeight;
         }
     }
 
-    private void ConfigureStageButtonGrid()
+    private StageSelectOpenSource GetStageSelectOpenSourceFromActivePanel()
     {
-        GridLayoutGroup gridLayoutGroup = stageButtonContainer.GetComponent<GridLayoutGroup>();
-
-        if (gridLayoutGroup == null)
+        if (IsPanelActive(titlePanel))
         {
-            Debug.LogWarning("StageButtonContainer should have a Grid Layout Group component.");
+            return StageSelectOpenSource.Title;
+        }
+
+        if (IsPanelActive(pauseMenuPanel))
+        {
+            return StageSelectOpenSource.Pause;
+        }
+
+        return StageSelectOpenSource.Game;
+    }
+
+    private List<int> GetStageIndicesByCategory(StageCategory category)
+    {
+        List<int> stageIndices = new List<int>();
+
+        for (int i = 0; i < stages.Count; i++)
+        {
+            StageCategory stageCategory = stages[i] != null
+                ? stages[i].stageCategory
+                : StageCategory.Standard;
+
+            if (stageCategory == category)
+            {
+                stageIndices.Add(i);
+            }
+        }
+
+        return stageIndices;
+    }
+
+    private StageGroupView CreateStageGroup(StageCategory category, Transform groupContainer)
+    {
+        GameObject groupObject = stageGroupPrefab != null
+            ? Instantiate(stageGroupPrefab, groupContainer)
+            : CreateDefaultStageGroup(groupContainer);
+
+        groupObject.name = $"{category}Group";
+        DisableLayoutComponents(groupObject);
+
+        TextMeshProUGUI titleText = FindChildComponentByName<TextMeshProUGUI>(groupObject.transform, "GroupTitleText");
+        if (titleText != null)
+        {
+            titleText.text = category.ToString();
+        }
+        else
+        {
+            Debug.LogWarning($"{groupObject.name} does not have a GroupTitleText.");
+        }
+
+        Transform buttonContainer = FindChildTransformByName(groupObject.transform, "StageButtonContainer");
+        if (buttonContainer == null)
+        {
+            Debug.LogWarning($"{groupObject.name} does not have a StageButtonContainer. Buttons will be added to the group root.");
+            buttonContainer = groupObject.transform;
+        }
+        else
+        {
+            DisableLayoutComponents(buttonContainer.gameObject);
+        }
+
+        return new StageGroupView
+        {
+            groupObject = groupObject,
+            buttonContainer = buttonContainer
+        };
+    }
+
+    private void ConfigureStageGroupManualLayout(StageGroupView stageGroup, float currentY, float groupHeight, float buttonAreaHeight)
+    {
+        if (stageGroup == null || stageGroup.groupObject == null || stageGroup.buttonContainer == null)
+        {
             return;
         }
 
-        gridLayoutGroup.cellSize = new Vector2(60f, 60f);
-        gridLayoutGroup.spacing = new Vector2(10f, 10f);
-        gridLayoutGroup.startAxis = GridLayoutGroup.Axis.Horizontal;
-        gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        gridLayoutGroup.constraintCount = 5;
+        RectTransform groupRect = stageGroup.groupObject.GetComponent<RectTransform>();
+        if (groupRect != null)
+        {
+            groupRect.anchorMin = new Vector2(0f, 1f);
+            groupRect.anchorMax = new Vector2(0f, 1f);
+            groupRect.pivot = new Vector2(0f, 1f);
+            groupRect.anchoredPosition = new Vector2(stageSelectStartPosition.x, currentY);
+            groupRect.sizeDelta = new Vector2(
+                stageButtonsPerRow * stageButtonWidth + Mathf.Max(0, stageButtonsPerRow - 1) * stageButtonSpacingX,
+                groupHeight);
+        }
+
+        TextMeshProUGUI titleText = FindChildComponentByName<TextMeshProUGUI>(stageGroup.groupObject.transform, "GroupTitleText");
+        if (titleText != null)
+        {
+            RectTransform titleRect = titleText.rectTransform;
+            titleRect.anchorMin = new Vector2(0f, 1f);
+            titleRect.anchorMax = new Vector2(0f, 1f);
+            titleRect.pivot = new Vector2(0f, 1f);
+            titleRect.anchoredPosition = Vector2.zero;
+            titleRect.sizeDelta = new Vector2(groupRect != null ? groupRect.sizeDelta.x : 0f, categoryTitleHeight);
+        }
+
+        RectTransform buttonContainerRect = stageGroup.buttonContainer as RectTransform;
+        if (buttonContainerRect != null)
+        {
+            buttonContainerRect.anchorMin = new Vector2(0f, 1f);
+            buttonContainerRect.anchorMax = new Vector2(0f, 1f);
+            buttonContainerRect.pivot = new Vector2(0f, 1f);
+            buttonContainerRect.anchoredPosition = Vector2.zero;
+            buttonContainerRect.sizeDelta = new Vector2(groupRect != null ? groupRect.sizeDelta.x : 0f, buttonAreaHeight);
+        }
+    }
+
+    private void DisableLayoutComponents(GameObject targetObject)
+    {
+        if (targetObject == null)
+        {
+            return;
+        }
+
+        foreach (LayoutGroup layoutGroup in targetObject.GetComponents<LayoutGroup>())
+        {
+            layoutGroup.enabled = false;
+        }
+
+        ContentSizeFitter contentSizeFitter = targetObject.GetComponent<ContentSizeFitter>();
+        if (contentSizeFitter != null)
+        {
+            contentSizeFitter.enabled = false;
+        }
+
+        LayoutElement layoutElement = targetObject.GetComponent<LayoutElement>();
+        if (layoutElement != null)
+        {
+            layoutElement.enabled = false;
+        }
+    }
+
+    private GameObject CreateDefaultStageGroup(Transform groupContainer)
+    {
+        GameObject groupObject = new GameObject("StageGroup", typeof(RectTransform));
+        groupObject.transform.SetParent(groupContainer, false);
+
+        GameObject titleObject = new GameObject("GroupTitleText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        titleObject.transform.SetParent(groupObject.transform, false);
+
+        TextMeshProUGUI titleText = titleObject.GetComponent<TextMeshProUGUI>();
+        titleText.fontSize = 24f;
+        titleText.alignment = TextAlignmentOptions.Left;
+
+        GameObject buttonContainerObject = new GameObject("StageButtonContainer", typeof(RectTransform));
+        buttonContainerObject.transform.SetParent(groupObject.transform, false);
+
+        return groupObject;
+    }
+
+    private GameObject CreateStageSelectButton(int stageIndex, Transform buttonContainer)
+    {
+        GameObject buttonObject = Instantiate(stageButtonPrefab, buttonContainer);
+        StageSelectButton stageSelectButton = buttonObject.GetComponent<StageSelectButton>();
+
+        if (stageSelectButton == null)
+        {
+            Debug.LogWarning($"{stageButtonPrefab.name} does not have a StageSelectButton component.");
+            return buttonObject;
+        }
+
+        stageSelectButton.Setup(this, stageIndex, stages[stageIndex], IsStageUnlocked(stageIndex));
+        return buttonObject;
+    }
+
+    private void PositionStageSelectButton(GameObject buttonObject, int localIndex)
+    {
+        if (buttonObject == null)
+        {
+            return;
+        }
+
+        DisableLayoutComponents(buttonObject);
+
+        RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
+        if (buttonRect == null)
+        {
+            return;
+        }
+
+        int buttonsPerRow = Mathf.Max(1, stageButtonsPerRow);
+        int row = localIndex / buttonsPerRow;
+        int col = localIndex % buttonsPerRow;
+        float x = col * (stageButtonWidth + stageButtonSpacingX);
+        float y = -(categoryTitleHeight + titleToButtonSpacing) - row * (stageButtonHeight + stageButtonSpacingY);
+
+        buttonRect.anchorMin = new Vector2(0f, 1f);
+        buttonRect.anchorMax = new Vector2(0f, 1f);
+        buttonRect.pivot = new Vector2(0f, 1f);
+        buttonRect.anchoredPosition = new Vector2(x, y);
+        buttonRect.sizeDelta = new Vector2(stageButtonWidth, stageButtonHeight);
+    }
+
+    private void ClearChildren(Transform parent)
+    {
+        for (int i = parent.childCount - 1; i >= 0; i--)
+        {
+            Destroy(parent.GetChild(i).gameObject);
+        }
+    }
+
+    private Transform FindChildTransformByName(Transform root, string childName)
+    {
+        foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+        {
+            if (child.name == childName)
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    private T FindChildComponentByName<T>(Transform root, string childName) where T : Component
+    {
+        Transform child = FindChildTransformByName(root, childName);
+        return child != null ? child.GetComponent<T>() : null;
     }
 
     private void LoadStageProgress()
@@ -439,6 +748,45 @@ public class StageLoader : MonoBehaviour
     {
         PlayerPrefs.SetInt(LastPlayedStageIndexKey, ClampLastPlayedStageIndex(index));
         PlayerPrefs.Save();
+    }
+
+    private void FitCameraToBoard(BoardGenerator targetBoardGenerator)
+    {
+        if (targetBoardGenerator == null || !targetBoardGenerator.TryGetBoardBounds(out Bounds bounds))
+        {
+            return;
+        }
+
+        Camera cameraToFit = targetCamera != null ? targetCamera : Camera.main;
+
+        if (cameraToFit == null)
+        {
+            Debug.LogWarning("StageLoader could not find a camera to fit to the board.");
+            return;
+        }
+
+        if (!cameraToFit.orthographic)
+        {
+            Debug.LogWarning($"{cameraToFit.name} is not orthographic. Board camera fitting was skipped.");
+            return;
+        }
+
+        float aspect = Mathf.Max(cameraToFit.aspect, 0.01f);
+        float verticalSize = bounds.size.y / 2f + cameraPadding;
+        float horizontalSize = bounds.size.x / (2f * aspect) + cameraPadding;
+        float requiredSize = Mathf.Max(verticalSize, horizontalSize);
+        float minSize = Mathf.Max(0.01f, minOrthographicSize);
+        float maxSize = Mathf.Max(minSize, maxOrthographicSize);
+
+        cameraToFit.orthographicSize = Mathf.Clamp(requiredSize, minSize, maxSize);
+
+        Vector3 center = bounds.center;
+        Vector3 cameraPosition = cameraToFit.transform.position;
+        cameraToFit.transform.position = new Vector3(
+            center.x + cameraOffset.x,
+            center.y + cameraOffset.y,
+            cameraPosition.z
+        );
     }
 
     private int ClampHighestUnlockedStageIndex(int index)
@@ -779,15 +1127,73 @@ public class StageLoader : MonoBehaviour
         }
     }
 
-    private void ShowAllClear()
+    public bool IsFinalStage()
+    {
+        return stages != null && stages.Count > 0 && currentStageIndex >= stages.Count - 1;
+    }
+
+    public bool IsLastStageOfCurrentCategory()
+    {
+        if (stages == null || currentStageIndex < 0 || currentStageIndex >= stages.Count || currentStage == null)
+        {
+            return false;
+        }
+
+        StageCategory currentCategory = currentStage.stageCategory;
+
+        for (int i = currentStageIndex + 1; i < stages.Count; i++)
+        {
+            if (stages[i] != null && stages[i].stageCategory == currentCategory)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public string GetCurrentCategoryClearMessage()
+    {
+        if (currentStage == null)
+        {
+            return defaultCategoryClearMessage;
+        }
+
+        StageCategory category = currentStage.stageCategory;
+
+        foreach (CategoryClearMessage entry in categoryClearMessages)
+        {
+            if (entry != null && entry.category == category && !string.IsNullOrEmpty(entry.message))
+            {
+                return entry.message;
+            }
+        }
+
+        return defaultCategoryClearMessage;
+    }
+
+    public void ShowCategoryClear()
+    {
+        ShowSpecialClear(GetCurrentCategoryClearMessage(), true, false);
+    }
+
+    public void ShowAllClear()
+    {
+        ShowSpecialClear(allClearMessage, false, true);
+    }
+
+    private void ShowSpecialClear(string message, bool showNextStageButton, bool playAllClearSound)
     {
         if (allClearText != null)
         {
-            allClearText.text = "ALL CLEAR!";
+            allClearText.text = message;
         }
 
         SetAllClearPanelVisible(true);
-        PlaySE(allClearSE, allClearSEVolume);
+        if (playAllClearSound)
+        {
+            PlaySE(allClearSE, allClearSEVolume);
+        }
         SetPanelVisible(helpPanel, false);
         SetPanelVisible(gameUIPanel, false);
         CloseStageSelectSilently();
@@ -803,11 +1209,12 @@ public class StageLoader : MonoBehaviour
         if (targetPuzzleManager != null)
         {
             targetPuzzleManager.HideClearDisplay();
+            targetPuzzleManager.SetNextStageButtonVisibleExternal(showNextStageButton);
         }
 
         if (allClearPanel == null)
         {
-            Debug.Log("All stages clear!");
+            Debug.Log(message);
         }
     }
 
@@ -840,4 +1247,19 @@ public class StageLoader : MonoBehaviour
         }
     }
 
+}
+
+[System.Serializable]
+public class CategoryClearMessage
+{
+    public StageCategory category;
+
+    [TextArea(1, 3)]
+    public string message;
+}
+
+public class StageGroupView
+{
+    public GameObject groupObject;
+    public Transform buttonContainer;
 }

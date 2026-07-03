@@ -1,0 +1,128 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
+  m_Name: exact_002
+  m_EditorClassIdentifier: 
+  stageName: exact_002
+  boardText: 'ZZZXZ
+
+    Z2ZZZ
+
+    ZXZ2X
+
+    Z2ZZZ
+
+    ZZZX1'
+  stageCategory: 2
+  pieceStocks:
+  - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
+    count: 4
+  fixedPieces: []
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 0
+  helpPageToShowEveryTime: 0
+  authorNote: 'Auto generated stage.
+
+    Mode: RandomProfile
+
+    Profile: DiagonalPieces
+
+    Shape
+    Bias: Diagonal
+
+    Seed: 789913158
+
+    Removed Cells: 4
+
+    Answer placements:
+
+    Bishop
+    at (2, 2)
+
+    Bishop at (0, 2)
+
+    Bishop at (1, 4)
+
+    Bishop at (1, 0)
+
+    
+
+    Solver
+    evaluation:
+
+    Final Score: 160
+
+    Solvable: True
+
+    Solution Count:
+    10
+
+    Min Pieces Used: 4
+
+    Requires All Pieces: True
+
+    Constrained
+    Cell Count: 0
+
+    Min Cover Candidate Count: 8
+
+    Shape Hint Score: 12
+
+    Total
+    Normal Piece Count: 4
+
+    Exact Cell Count: 4
+
+    Exact Cell Rate: 0.19
+
+    Exact
+    Number Variety: 1/2
+
+    No Exact Solution Count: 10
+
+    Solution Score: 15
+
+    All
+    Pieces Score: 50
+
+    Exact Cell Count Score: 10
+
+    Exact Number Variety
+    Score: 10
+
+    Solution Reduction Score: 0
+
+    Piece Role Score: 30
+
+    Board
+    Shape Score: 30
+
+    Connected Component Count: 1
+
+    Small Island Count:
+    0
+
+    Small Island Penalty: 0
+
+    Isolated Piece Penalty: 0
+
+    Piece Spread
+    Penalty: 0
+
+    Tiny Island With Piece Penalty: 0
+
+    Exact On Tiny Island
+    Penalty: 0
+
+    Unnatural Long Range Penalty: 0
+
+'

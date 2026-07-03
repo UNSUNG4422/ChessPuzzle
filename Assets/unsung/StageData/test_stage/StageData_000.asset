@@ -17,13 +17,14 @@ MonoBehaviour:
 
     ZZZZXX
 
-    1ZZXXZ
+    ZZZXXZ
 
     ZXZZXZ
 
-    ZZZ2Z2
+    ZZZZZZ
 
-    ZZXZX2'
+    ZZXZXZ'
+  stageCategory: 0
   pieceStocks:
   - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
     count: 1

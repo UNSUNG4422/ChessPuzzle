@@ -12,23 +12,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
   m_Name: standard 2
   m_EditorClassIdentifier: 
-  stageName: standard
-  boardText: 'XZXXZX
+  stageName: "\u99D2\u3092\u7F6E\u304F"
+  boardText: 'XZXZXZX
 
-    ZZZZZZ
+    ZXZXZXZ
 
-    XZXXZX
+    XZXZXZX
 
-    XZXXZX
+    ZXZXZXZ
 
-    ZZZZZZ
+    XZXZXZX
 
-    XZXXZX'
+    ZXZXZXZ
+
+    XZXZXZX'
+  stageCategory: 1
   pieceStocks:
-  - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
-    count: 2
+  - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
+    count: 4
   fixedPieces: []
   helpPageToUnlock: 0
   forceShowHelpOnFirstUnlock: 0
   helpPageToShowEveryTime: 0
-  authorNote: 
+  authorNote: 'Created with Answer Based Stage Editor.
+
+    Answer placements:
+
+    Bishop
+    at (1, 4)
+
+    Bishop at (2, 1)
+
+    Bishop at (5, 2)
+
+    Bishop at (4, 5)
+
+'

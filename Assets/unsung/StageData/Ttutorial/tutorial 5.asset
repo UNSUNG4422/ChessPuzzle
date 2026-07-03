@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
+  m_Name: tutorial 5
+  m_EditorClassIdentifier: 
+  stageName: "\u79FB\u52D5\u7BC4\u56F2\u306F\u91CD\u306D\u3089\u308C\u308B\u3002\u30AF\u30A4\u30FC\u30F3\u306E\u52D5\u304D"
+  boardText: 'XXZXXXZ
+
+    XXZXZZX
+
+    ZXZXZXX
+
+    XZZZXXX
+
+    ZZZZZZZ
+
+    XZZZXXX
+
+    ZXZXZXX'
+  stageCategory: 0
+  pieceStocks:
+  - pieceData: {fileID: 11400000, guid: 3b56d96a56007d54d84f5c6e870817c1, type: 2}
+    count: 1
+  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+    count: 1
+  fixedPieces: []
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 0
+  helpPageToShowEveryTime: 0
+  authorNote: 'Created with Answer Based Stage Editor.
+
+    Answer placements:
+
+    Queen
+    at (2, 2)
+
+    Pawn at (4, 4)
+
+'

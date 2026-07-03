@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
+  m_Name: Fixed 0
+  m_EditorClassIdentifier: 
+  stageName: 
+  boardText: 'Z23ZZ3
+
+    2XZ2Z1
+
+    Z2ZZZX
+
+    2X2ZX2
+
+    ZZ2ZXZ
+
+    33ZZ2Z'
+  stageCategory: 3
+  pieceStocks:
+  - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
+    count: 1
+  - pieceData: {fileID: 11400000, guid: 0b29ea0441ca0984cb52026ae16eddff, type: 2}
+    count: 2
+  - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
+    count: 2
+  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+    count: 1
+  fixedPieces:
+  - pieceData: {fileID: 11400000, guid: db94c05d37290b04c8d3d9f837144a6e, type: 2}
+    position: {x: 2, y: 2}
+  helpPageToUnlock: 3
+  forceShowHelpOnFirstUnlock: 1
+  helpPageToShowEveryTime: 3
+  authorNote: 'Created with Answer Based Stage Editor.
+
+    Answer placements:
+
+    Bishop
+    at (4, 3)
+
+    Bishop at (2, 2) [Fixed]
+
+    Knight at (0, 2)
+
+    Knight at
+    (3, 4)
+
+    Rook at (5, 0)
+
+    Rook at (0, 5)
+
+    Pawn at (2, 4)
+
+'
