@@ -856,6 +856,7 @@ public class StageLoader : MonoBehaviour
         if (hasEveryTimeHelp)
         {
             Debug.Log($"[HELP DEBUG] Showing everyTime help: {stageData.helpPageToShowEveryTime}");
+            UnlockHelpPage(stageData.helpPageToShowEveryTime);
             ShowHelpPage(stageData.helpPageToShowEveryTime);
         }
     }
@@ -906,6 +907,10 @@ public class StageLoader : MonoBehaviour
             return false;
         }
 
+        HelpPageType resolvedHelpPage = helpPage == HelpPageType.None
+            ? HelpPageType.HelpA_Basic
+            : helpPage;
+        Debug.Log($"[HELP] Show {resolvedHelpPage}");
         ShowHelpPanel();
         SetPanelVisible(helpListView, false);
         SetPanelVisible(helpPageView, true);
@@ -1024,7 +1029,15 @@ public class StageLoader : MonoBehaviour
 
         foreach (HelpPageData page in helpPages)
         {
-            if (page == null || page.helpPageType == HelpPageType.None || !IsHelpPageUnlocked(page.helpPageType))
+            if (page == null || page.helpPageType == HelpPageType.None)
+            {
+                continue;
+            }
+
+            bool isUnlocked = IsHelpPageUnlocked(page.helpPageType);
+            Debug.Log($"[HELP] Build list: {page.helpPageType} unlocked={isUnlocked}");
+
+            if (!isUnlocked)
             {
                 continue;
             }
@@ -1051,6 +1064,7 @@ public class StageLoader : MonoBehaviour
 
         PlayerPrefs.SetInt(GetHelpPageUnlockedKey(helpPage), 1);
         PlayerPrefs.Save();
+        Debug.Log($"[HELP] Unlock {helpPage}");
     }
 
     private bool IsHelpPageUnlocked(HelpPageType helpPage)

@@ -46,6 +46,9 @@ public class PuzzleManager : MonoBehaviour
     private readonly List<PuzzleActionRecord> actionHistory = new List<PuzzleActionRecord>();
     private bool isCoverageTemporarilyInverted;
 
+    public bool IsCleared => isCleared;
+    public bool IsGameplayLocked => isCleared;
+
     private enum PuzzleActionType
     {
         Place,
@@ -161,6 +164,11 @@ public class PuzzleManager : MonoBehaviour
 
     public void SelectPiece(PieceData pieceData)
     {
+        if (IsGameplayLocked)
+        {
+            return;
+        }
+
         if (pieceData == null)
         {
             Debug.LogWarning("Cannot select a null PieceData.");
@@ -215,6 +223,11 @@ public class PuzzleManager : MonoBehaviour
     public void OnCellLeftClicked(CellView cell)
     {
         ClearPreview();
+
+        if (IsGameplayLocked)
+        {
+            return;
+        }
 
         if (cell == null)
         {
@@ -278,12 +291,22 @@ public class PuzzleManager : MonoBehaviour
 
     public void OnCellRightClicked(CellView cell)
     {
+        if (IsGameplayLocked)
+        {
+            return;
+        }
+
         ClearPreview();
         TryRemovePieceAt(cell);
     }
 
     public void OnCellHoverEnter(CellView cell)
     {
+        if (IsGameplayLocked)
+        {
+            return;
+        }
+
         ShowPreview(cell);
     }
 
@@ -294,6 +317,11 @@ public class PuzzleManager : MonoBehaviour
 
     public void UndoLastMove()
     {
+        if (IsGameplayLocked)
+        {
+            return;
+        }
+
         ClearPreview();
 
         if (actionHistory.Count == 0)
@@ -341,6 +369,16 @@ public class PuzzleManager : MonoBehaviour
     }
 
     public void ResetPuzzle()
+    {
+        if (IsGameplayLocked)
+        {
+            return;
+        }
+
+        ResetPuzzleInternal();
+    }
+
+    private void ResetPuzzleInternal()
     {
         ClearPreview();
 
@@ -433,7 +471,7 @@ public class PuzzleManager : MonoBehaviour
             fixedPieces.AddRange(stageData.fixedPieces);
         }
 
-        ResetPuzzle();
+        ResetPuzzleInternal();
     }
 
     public void HideClearDisplay()
@@ -640,6 +678,11 @@ public class PuzzleManager : MonoBehaviour
 
     private void TryRemovePieceAt(CellView cell)
     {
+        if (IsGameplayLocked)
+        {
+            return;
+        }
+
         if (cell == null)
         {
             return;
@@ -728,6 +771,11 @@ public class PuzzleManager : MonoBehaviour
     private void ShowPreview(CellView originCell)
     {
         ClearPreview();
+
+        if (IsGameplayLocked)
+        {
+            return;
+        }
 
         if (selectedPiece == null
             || originCell == null
@@ -910,6 +958,11 @@ public class PuzzleManager : MonoBehaviour
 
     private void CheckClear()
     {
+        if (isCleared)
+        {
+            return;
+        }
+
         foreach (CellView cell in cells)
         {
             if (cell == null || !cell.IsActive)
