@@ -33,7 +33,7 @@ MonoBehaviour:
   - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
     count: 1
   - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
-    count: 2
+    count: 1
   - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
     count: 1
   fixedPieces: []
