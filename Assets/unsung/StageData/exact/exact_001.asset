@@ -33,9 +33,9 @@ MonoBehaviour:
   - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
     count: 1
   fixedPieces: []
-  helpPageToUnlock: 2
-  forceShowHelpOnFirstUnlock: 1
-  helpPageToShowEveryTime: 2
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 0
+  helpPageToShowEveryTime: 0
   authorNote: 'Auto generated stage.
 
     Mode: RandomProfile
@@ -60,7 +60,7 @@ MonoBehaviour:
 
     Pawn at (3, 1)
 
-    
+
 
     Solver
     evaluation:
@@ -69,65 +69,64 @@ MonoBehaviour:
 
     Solvable: True
 
-    Solution Count:
-    2
+    Solution Count: 2
 
-    Min Pieces Used: 4
+    Min
+    Pieces Used: 4
 
     Requires All Pieces: True
 
-    Constrained
-    Cell Count: 0
+    Constrained Cell Count: 0
 
-    Min Cover Candidate Count: 15
+    Min
+    Cover Candidate Count: 15
 
     Shape Hint Score: 32
 
-    Total
-    Normal Piece Count: 4
+    Total Normal Piece Count:
+    4
 
     Exact Cell Count: 5
 
     Exact Cell Rate: 0.21
 
-    Exact
-    Number Variety: 1/2
+    Exact Number Variety:
+    1/2
 
     No Exact Solution Count: 6
 
     Solution Score: 30
 
-    All
-    Pieces Score: 50
+    All Pieces Score:
+    50
 
     Exact Cell Count Score: 10
 
-    Exact Number Variety
-    Score: 10
+    Exact Number Variety Score: 10
 
-    Solution Reduction Score: 0
+    Solution
+    Reduction Score: 0
 
     Piece Role Score: 30
 
-    Board
-    Shape Score: 30
+    Board Shape Score: 30
 
-    Connected Component Count: 1
+    Connected
+    Component Count: 1
 
-    Small Island Count:
-    0
+    Small Island Count: 0
 
     Small Island Penalty: 0
 
-    Isolated Piece Penalty: 0
+    Isolated
+    Piece Penalty: 0
 
-    Piece Spread
-    Penalty: 0
+    Piece Spread Penalty: 0
 
-    Tiny Island With Piece Penalty: 0
+    Tiny Island With Piece Penalty:
+    0
 
-    Exact On Tiny Island
-    Penalty: 0
+    Exact On Tiny Island Penalty: 0
 
     Unnatural Long Range Penalty: 0
 

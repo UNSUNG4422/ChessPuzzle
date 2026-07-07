@@ -37,9 +37,9 @@ MonoBehaviour:
     position: {x: 5, y: 0}
   - pieceData: {fileID: 11400000, guid: 6c2005a072bd6964dbbb8d84fcf9a343, type: 2}
     position: {x: 3, y: 2}
-  helpPageToUnlock: 0
-  forceShowHelpOnFirstUnlock: 0
-  helpPageToShowEveryTime: 0
+  helpPageToUnlock: 3
+  forceShowHelpOnFirstUnlock: 1
+  helpPageToShowEveryTime: 3
   authorNote: 'Created with Answer Based Stage Editor.
 
     Answer placements:
