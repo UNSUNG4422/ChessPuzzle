@@ -13,17 +13,29 @@ MonoBehaviour:
   m_Name: tutorial 1
   m_EditorClassIdentifier: 
   stageName: "\u99D2\u3092\uFF12\u500B\u7F6E\u304F"
-  boardText: 'ZXZ
+  boardText: 'XXZXXXXX
 
-    ZXZ'
+    XXXZXXXZ
+
+    XZXXZXZX
+
+    XZXXXZXX
+
+    XXXXZXZX
+
+    XXXZXXXZ
+
+    XXZXXXXX'
   stageCategory: 0
   pieceStocks:
   - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
-    count: 2
+    count: 1
+  - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
+    count: 1
   fixedPieces: []
-  helpPageToUnlock: 0
-  forceShowHelpOnFirstUnlock: 0
-  helpPageToShowEveryTime: 0
+  helpPageToUnlock: 4
+  forceShowHelpOnFirstUnlock: 1
+  helpPageToShowEveryTime: 4
   authorNote: 'Created with Answer Based Stage Editor.
 
     Answer placements:

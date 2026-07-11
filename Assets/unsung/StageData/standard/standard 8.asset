@@ -28,7 +28,7 @@ MonoBehaviour:
     XZXZZZZZ
 
     XXXXXXXX'
-  stageCategory: 1
+  stageCategory: 0
   pieceStocks:
   - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
     count: 2

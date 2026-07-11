@@ -25,7 +25,12 @@ public enum HelpPageType
     None,
     HelpA_Basic,
     HelpB_ExactCover,
-    HelpC_FixedPieces
+    HelpC_FixedPieces,
+    move_01,
+    move_02, 
+    move_03,
+    move_04,
+    Interference,
 }
 
 public enum StageCategory

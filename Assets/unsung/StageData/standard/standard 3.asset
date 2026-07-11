@@ -15,9 +15,9 @@ MonoBehaviour:
   stageName: "\u99D2\u3092\u7F6E\u304F"
   boardText: 'ZXXXXZX
 
-    ZZZXZZX
+    XXZXZZX
 
-    ZZZZZZZ
+    ZXZZZZZ
 
     XZZZXZZ
 
@@ -26,7 +26,7 @@ MonoBehaviour:
     ZZXZZZX
 
     ZZZXXXZ'
-  stageCategory: 1
+  stageCategory: 0
   pieceStocks:
   - pieceData: {fileID: 11400000, guid: d6c6c1fac4af9d74a9ce94a57ec9b0fc, type: 2}
     count: 1

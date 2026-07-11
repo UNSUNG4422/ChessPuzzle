@@ -39,6 +39,7 @@ public class StageLoader : MonoBehaviour
     [SerializeField] private float categoryTitleHeight = 28f;
     [SerializeField] private float titleToButtonSpacing = 6f;
     [SerializeField] private float categorySpacing = 16f;
+    [SerializeField] private float stageSelectBottomPadding = 20f;
     [SerializeField] private Vector2 stageSelectStartPosition = new Vector2(20f, -20f);
     [SerializeField] private GameObject titlePanel;
     [SerializeField] private GameObject pauseMenuPanel;
@@ -204,30 +205,46 @@ public class StageLoader : MonoBehaviour
 
     public void OpenPauseMenu()
     {
+        Debug.Log("[UI FLOW] OpenPauseMenu");
         PlaySE(buttonSE, buttonSEVolume);
         SetPanelVisible(helpPanel, false);
+        CloseStageSelectSilently();
+        SetPanelVisible(titlePanel, false);
         SetPanelVisible(pauseMenuPanel, true);
     }
 
     public void ClosePauseMenu()
     {
+        Debug.Log("[UI FLOW] ClosePauseMenu restore GameUIPanel");
         PlaySE(cancelSE, cancelSEVolume);
         SetPanelVisible(helpPanel, false);
+        CloseStageSelectSilently();
+        SetPanelVisible(titlePanel, false);
         SetPanelVisible(pauseMenuPanel, false);
+        SetPanelVisible(gameUIPanel, true);
     }
 
     public void OpenStageSelectFromTitle()
     {
+        Debug.Log("[UI FLOW] OpenStageSelectFromTitle");
         OpenStageSelect(StageSelectOpenSource.Title);
     }
 
     public void OpenStageSelectFromPause()
     {
+        Debug.Log("[UI FLOW] OpenStageSelectFromPause");
         OpenStageSelect(StageSelectOpenSource.Pause);
+    }
+
+    public void OpenStageSelectFromGame()
+    {
+        Debug.Log("[UI FLOW] OpenStageSelectFromGame");
+        OpenStageSelect(StageSelectOpenSource.Game);
     }
 
     public void OpenHelp()
     {
+        Debug.Log("[HELP DEBUG] OpenHelp");
         PlaySE(buttonSE, buttonSEVolume);
         ShowHelpPanel();
         ShowHelpList();
@@ -317,6 +334,27 @@ public class StageLoader : MonoBehaviour
         BuildStageSelectButtons();
     }
 
+    public void ResetHelpUnlocks()
+    {
+        DeleteHelpPageProgressKeys(HelpPageUnlockedKeyPrefix);
+        PlayerPrefs.Save();
+        Debug.Log("[HELP DEBUG] Reset Help Unlocks");
+    }
+
+    public void ResetHelpShownFlags()
+    {
+        DeleteHelpPageProgressKeys(HelpPageShownKeyPrefix);
+        PlayerPrefs.Save();
+        Debug.Log("[HELP DEBUG] Reset Help Shown Flags");
+    }
+
+    public void ResetAllHelpProgress()
+    {
+        ResetHelpUnlocks();
+        ResetHelpShownFlags();
+        Debug.Log("[HELP DEBUG] Reset All Help Progress");
+    }
+
     public void UnlockAllStagesForDebug()
     {
         if (stages == null || stages.Count == 0)
@@ -354,6 +392,7 @@ public class StageLoader : MonoBehaviour
 
     public void CloseStageSelect()
     {
+        Debug.Log($"[UI FLOW] CloseStageSelect source={stageSelectOpenSource}");
         PlaySE(cancelSE, cancelSEVolume);
         CloseStageSelectSilently();
 
@@ -473,7 +512,7 @@ public class StageLoader : MonoBehaviour
             return;
         }
 
-        float currentY = stageSelectStartPosition.y;
+        float currentY = GetStageSelectStartY();
 
         foreach (StageCategory category in System.Enum.GetValues(typeof(StageCategory)))
         {
@@ -501,6 +540,41 @@ public class StageLoader : MonoBehaviour
 
             currentY -= groupHeight;
         }
+
+        UpdateStageSelectContentHeight(groupContainer, currentY);
+    }
+
+    private void UpdateStageSelectContentHeight(Transform groupContainer, float currentY)
+    {
+        RectTransform contentRect = groupContainer as RectTransform;
+        if (contentRect == null)
+        {
+            return;
+        }
+
+        float contentHeight = Mathf.Abs(currentY) + Mathf.Max(0f, stageSelectBottomPadding);
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(0f, 1f);
+        contentRect.pivot = new Vector2(0f, 1f);
+        contentRect.anchoredPosition = Vector2.zero;
+        contentRect.sizeDelta = new Vector2(GetStageSelectContentWidth(), contentHeight);
+    }
+
+    private float GetStageSelectGroupPositionX()
+    {
+        return Mathf.Max(0f, stageSelectStartPosition.x);
+    }
+
+    private float GetStageSelectStartY()
+    {
+        return Mathf.Min(0f, stageSelectStartPosition.y);
+    }
+
+    private float GetStageSelectContentWidth()
+    {
+        int buttonsPerRow = Mathf.Max(1, stageButtonsPerRow);
+        float buttonAreaWidth = buttonsPerRow * stageButtonWidth + Mathf.Max(0, buttonsPerRow - 1) * stageButtonSpacingX;
+        return GetStageSelectGroupPositionX() + buttonAreaWidth + Mathf.Max(0f, stageSelectBottomPadding);
     }
 
     private StageSelectOpenSource GetStageSelectOpenSourceFromActivePanel()
@@ -587,7 +661,7 @@ public class StageLoader : MonoBehaviour
             groupRect.anchorMin = new Vector2(0f, 1f);
             groupRect.anchorMax = new Vector2(0f, 1f);
             groupRect.pivot = new Vector2(0f, 1f);
-            groupRect.anchoredPosition = new Vector2(stageSelectStartPosition.x, currentY);
+            groupRect.anchoredPosition = new Vector2(GetStageSelectGroupPositionX(), currentY);
             groupRect.sizeDelta = new Vector2(
                 stageButtonsPerRow * stageButtonWidth + Mathf.Max(0, stageButtonsPerRow - 1) * stageButtonSpacingX,
                 groupHeight);
@@ -1027,6 +1101,8 @@ public class StageLoader : MonoBehaviour
             return;
         }
 
+        Debug.Log($"[HELP DEBUG] BuildHelpList pages={helpPages.Count}");
+
         foreach (HelpPageData page in helpPages)
         {
             if (page == null || page.helpPageType == HelpPageType.None)
@@ -1035,7 +1111,7 @@ public class StageLoader : MonoBehaviour
             }
 
             bool isUnlocked = IsHelpPageUnlocked(page.helpPageType);
-            Debug.Log($"[HELP] Build list: {page.helpPageType} unlocked={isUnlocked}");
+            Debug.Log($"[HELP DEBUG] page={page.helpPageType} unlocked={isUnlocked}");
 
             if (!isUnlocked)
             {
@@ -1052,6 +1128,7 @@ public class StageLoader : MonoBehaviour
             }
 
             helpPageButton.Setup(this, page);
+            Debug.Log($"[HELP DEBUG] CreateButton {page.helpPageType}");
         }
     }
 
@@ -1064,12 +1141,17 @@ public class StageLoader : MonoBehaviour
 
         PlayerPrefs.SetInt(GetHelpPageUnlockedKey(helpPage), 1);
         PlayerPrefs.Save();
-        Debug.Log($"[HELP] Unlock {helpPage}");
+        Debug.Log($"[HELP DEBUG] Unlock {helpPage} key={GetHelpPageUnlockedKey(helpPage)}");
     }
 
     private bool IsHelpPageUnlocked(HelpPageType helpPage)
     {
-        return PlayerPrefs.GetInt(GetHelpPageUnlockedKey(helpPage), 0) != 0;
+        if (helpPage == HelpPageType.None)
+        {
+            return false;
+        }
+
+        return PlayerPrefs.GetInt(GetHelpPageUnlockedKey(helpPage), 0) == 1;
     }
 
     private string GetHelpPageUnlockedKey(HelpPageType helpPage)
@@ -1095,12 +1177,21 @@ public class StageLoader : MonoBehaviour
 
     private void ResetHelpPageProgress()
     {
-        PlayerPrefs.DeleteKey(GetHelpPageUnlockedKey(HelpPageType.HelpA_Basic));
-        PlayerPrefs.DeleteKey(GetHelpPageUnlockedKey(HelpPageType.HelpB_ExactCover));
-        PlayerPrefs.DeleteKey(GetHelpPageUnlockedKey(HelpPageType.HelpC_FixedPieces));
-        PlayerPrefs.DeleteKey(GetHelpPageShownKey(HelpPageType.HelpA_Basic));
-        PlayerPrefs.DeleteKey(GetHelpPageShownKey(HelpPageType.HelpB_ExactCover));
-        PlayerPrefs.DeleteKey(GetHelpPageShownKey(HelpPageType.HelpC_FixedPieces));
+        DeleteHelpPageProgressKeys(HelpPageUnlockedKeyPrefix);
+        DeleteHelpPageProgressKeys(HelpPageShownKeyPrefix);
+    }
+
+    private void DeleteHelpPageProgressKeys(string keyPrefix)
+    {
+        foreach (HelpPageType helpPage in System.Enum.GetValues(typeof(HelpPageType)))
+        {
+            if (helpPage == HelpPageType.None)
+            {
+                continue;
+            }
+
+            PlayerPrefs.DeleteKey(keyPrefix + helpPage);
+        }
     }
 
     private void ResolveHelpTextReferences()

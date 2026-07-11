@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e398004c087afb4dbacb45419e855f8, type: 3}
+  m_Name: move_03
+  m_EditorClassIdentifier: 
+  helpPageType: 6
+  title: "\u99D2\u306E\u79FB\u52D5\u7BC4\u56F2 3/4"
+  message: "\n\n\nknight\uFF1A\nL\u5B57\u306B\u30B8\u30E3\u30F3\u30D7\u3057\u305F\uFF18\u30F5\u6240\u3092\u30AB\u30D0\u30FC\u3057\u307E\u3059\u3002"
+  image: {fileID: 21300000, guid: 44f30ca353d3f7b4aa50cfc22bab88ec, type: 3}
