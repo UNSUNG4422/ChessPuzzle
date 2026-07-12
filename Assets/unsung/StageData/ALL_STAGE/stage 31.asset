@@ -10,39 +10,37 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
-  m_Name: stage02
+  m_Name: stage 31
   m_EditorClassIdentifier: 
-  stageName: "\u99D2\u3092\uFF12\u500B\u7F6E\u304F"
-  boardText: 'XXZXXXXX
+  stageName: stage 31
+  boardText: 'XZXXZX
 
-    XXXZXXXZ
+    ZZZZZZ
 
-    XZXXZXZX
+    XZXXZX
 
-    XZXXXZXX
+    XZXXZX
 
-    XXXXZXZX
+    ZZZZZZ
 
-    XXXZXXXZ
-
-    XXZXXXXX'
-  stageCategory: 0
+    XZXXZX'
+  stageCategory: 4
   pieceStocks:
-  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+  - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
     count: 1
-  - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
-    count: 1
-  fixedPieces: []
-  helpPageToUnlock: 4
+  fixedPieces:
+  - pieceData: {fileID: 11400000, guid: 30fb6ff9117d7f649a20fd0746eeb5af, type: 2}
+    position: {x: 4, y: 1}
+  helpPageToUnlock: 3
   forceShowHelpOnFirstUnlock: 1
-  helpPageToShowEveryTime: 4
+  helpPageToShowEveryTime: 3
   authorNote: 'Created with Answer Based Stage Editor.
 
     Answer placements:
 
-    Pawn
-    at (0, 0)
+    Rook
+    at (1, 4)
 
-    Pawn at (2, 0)
+    Rook at (4, 1) [Fixed]
 
 '

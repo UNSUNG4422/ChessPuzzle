@@ -53,6 +53,7 @@ public class StageLoader : MonoBehaviour
     [SerializeField] private TextMeshProUGUI helpMessageText;
     [SerializeField] private Image helpImage;
     [SerializeField] private List<HelpPageData> helpPages = new List<HelpPageData>();
+    [SerializeField] private List<HelpPageType> initiallyUnlockedHelpPages = new();
     [SerializeField] private List<CategoryClearMessage> categoryClearMessages = new List<CategoryClearMessage>();
     [SerializeField, TextArea(1, 3)] private string defaultCategoryClearMessage = "ステージクリア！";
     [SerializeField, TextArea(1, 3)] private string allClearMessage = "ALL CLEAR!";
@@ -85,13 +86,14 @@ public class StageLoader : MonoBehaviour
     {
         SetAllClearPanelVisible(false);
 
+        LoadStageProgress();
+        UnlockInitialHelpPages();
+
         if (stages == null || stages.Count == 0)
         {
             Debug.LogWarning("StageLoader has no stages assigned.");
             return;
         }
-
-        LoadStageProgress();
 
         if (unlockAllStagesOnStart)
         {
@@ -1080,6 +1082,24 @@ public class StageLoader : MonoBehaviour
     private HelpPageData GetHelpPageData(HelpPageType type)
     {
         return helpPages.Find(page => page != null && page.helpPageType == type);
+    }
+
+    private void UnlockInitialHelpPages()
+    {
+        if (initiallyUnlockedHelpPages == null)
+        {
+            return;
+        }
+
+        foreach (HelpPageType helpPage in initiallyUnlockedHelpPages)
+        {
+            if (helpPage == HelpPageType.None || IsHelpPageUnlocked(helpPage))
+            {
+                continue;
+            }
+
+            UnlockHelpPage(helpPage);
+        }
     }
 
     private void BuildHelpPageButtons()

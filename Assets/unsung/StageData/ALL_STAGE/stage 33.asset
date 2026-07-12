@@ -10,35 +10,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
-  m_Name: stage07
+  m_Name: stage 33
   m_EditorClassIdentifier: 
-  stageName: "\u99D2\u3092\u7F6E\u304F"
-  boardText: 'XZXZXXZ
+  stageName: 
+  boardText: 'Z23ZZ3
 
-    ZZZZZZZ
+    2XZ2Z1
 
-    XZZZZXX
+    Z2ZZZX
 
-    ZZZZZZX
+    2X2ZX2
 
-    XZZZZZX
+    ZZ2ZXZ
 
-    XZXZZZX
-
-    ZZXXXXX'
-  stageCategory: 0
+    33ZZ2Z'
+  stageCategory: 4
   pieceStocks:
-  - pieceData: {fileID: 11400000, guid: 0b29ea0441ca0984cb52026ae16eddff, type: 2}
-    count: 1
   - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
     count: 1
-  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+  - pieceData: {fileID: 11400000, guid: 0b29ea0441ca0984cb52026ae16eddff, type: 2}
     count: 2
   - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
+    count: 2
+  - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
     count: 1
-  - pieceData: {fileID: 11400000, guid: d6c6c1fac4af9d74a9ce94a57ec9b0fc, type: 2}
-    count: 1
-  fixedPieces: []
+  fixedPieces:
+  - pieceData: {fileID: 11400000, guid: db94c05d37290b04c8d3d9f837144a6e, type: 2}
+    position: {x: 2, y: 2}
   helpPageToUnlock: 0
   forceShowHelpOnFirstUnlock: 0
   helpPageToShowEveryTime: 0
@@ -46,18 +44,20 @@ MonoBehaviour:
 
     Answer placements:
 
-    Knight
-    at (2, 4)
+    Bishop
+    at (4, 3)
 
-    Bishop at (6, 6)
+    Bishop at (2, 2) [Fixed]
 
-    Pawn at (3, 3)
+    Knight at (0, 2)
 
-    Rook at (1, 5)
+    Knight at
+    (3, 4)
 
-    Pawn
-    at (2, 2)
+    Rook at (5, 0)
 
-    King at (4, 2)
+    Rook at (0, 5)
+
+    Pawn at (2, 4)
 
 '

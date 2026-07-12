@@ -10,52 +10,54 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82e7ce8953e458440afddc8b17180082, type: 3}
-  m_Name: stage08
+  m_Name: stage 17
   m_EditorClassIdentifier: 
   stageName: "\u99D2\u3092\u7F6E\u304F"
-  boardText: 'XXXXXXXX
+  boardText: 'X2XZXXZ
 
-    XXXZZZXX
+    2ZZZ2ZZ
 
-    XZZZZXZX
+    XZZZZXX
 
-    XXZZZXXX
+    ZZZZZZX
 
-    ZZZZZZ3Z
+    X2ZZZZX
 
-    XXZZZZZX
+    XZXZZ2X
 
-    XZXZ2ZZZ
-
-    XXXXXXXX'
-  stageCategory: 0
+    ZZXXXXX'
+  stageCategory: 1
   pieceStocks:
-  - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
-    count: 2
-  - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
-    count: 1
   - pieceData: {fileID: 11400000, guid: 0b29ea0441ca0984cb52026ae16eddff, type: 2}
     count: 1
+  - pieceData: {fileID: 11400000, guid: 6864c02ff6ff37542bc7b65feacaab54, type: 2}
+    count: 1
   - pieceData: {fileID: 11400000, guid: ac31137cfb0d31a449bcc40f70608312, type: 2}
+    count: 2
+  - pieceData: {fileID: 11400000, guid: 47e885b74de933643abbfecf2274798f, type: 2}
+    count: 1
+  - pieceData: {fileID: 11400000, guid: d6c6c1fac4af9d74a9ce94a57ec9b0fc, type: 2}
     count: 1
   fixedPieces: []
-  helpPageToUnlock: 2
-  forceShowHelpOnFirstUnlock: 1
-  helpPageToShowEveryTime: 2
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 0
+  helpPageToShowEveryTime: 0
   authorNote: 'Created with Answer Based Stage Editor.
 
     Answer placements:
 
-    Rook
-    at (4, 3)
+    Knight
+    at (2, 4)
 
-    Bishop at (3, 3)
+    Bishop at (6, 6)
 
-    Knight at (4, 4)
+    Pawn at (3, 3)
 
-    Pawn at (3, 4)
+    Rook at (1, 5)
 
-    Rook
-    at (6, 1)
+    Pawn
+    at (2, 2)
+
+    King at (4, 2)
 
 '

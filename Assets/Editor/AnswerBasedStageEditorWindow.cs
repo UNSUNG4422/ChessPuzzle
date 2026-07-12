@@ -18,8 +18,11 @@ public class AnswerBasedStageEditorWindow : EditorWindow
     [SerializeField] private string authorNote = string.Empty;
     [SerializeField] private List<EditorPieceStock> editorPieceStocks = new List<EditorPieceStock>();
 
-    private readonly List<EditorPlacedPiece> placedPieces = new List<EditorPlacedPiece>();
+    private readonly List<EditorPlacedPiece> solutionPieces = new List<EditorPlacedPiece>();
+    private readonly List<EditorPlacedPiece> fixedPieces = new List<EditorPlacedPiece>();
     private readonly HashSet<Vector2Int> activeCells = new HashSet<Vector2Int>();
+    private readonly HashSet<Vector2Int> generatedCells = new HashSet<Vector2Int>();
+    private readonly HashSet<Vector2Int> loadedBoardCells = new HashSet<Vector2Int>();
     private readonly HashSet<Vector2Int> exactCoverCells = new HashSet<Vector2Int>();
     private readonly HashSet<Vector2Int> removedCells = new HashSet<Vector2Int>();
     private readonly Dictionary<Vector2Int, int> coverCounts = new Dictionary<Vector2Int, int>();
@@ -123,14 +126,14 @@ public class AnswerBasedStageEditorWindow : EditorWindow
 
         if (GUILayout.Button("Clear Pieces"))
         {
-            placedPieces.Clear();
+            solutionPieces.Clear();
+            fixedPieces.Clear();
             RecalculatePreview();
         }
 
         if (GUILayout.Button("Clear Removed Cells"))
         {
             removedCells.Clear();
-            loadedRequiredCoverCounts.Clear();
             RecalculatePreview();
         }
 
@@ -142,6 +145,12 @@ public class AnswerBasedStageEditorWindow : EditorWindow
         }
 
         EditorGUILayout.EndHorizontal();
+
+        if (GUILayout.Button("Clear Loaded Board Cells"))
+        {
+            ClearLoadedBoardCells();
+        }
+
         EditorGUILayout.Space();
     }
 
@@ -203,7 +212,7 @@ public class AnswerBasedStageEditorWindow : EditorWindow
         }
 
         EditorGUILayout.Space();
-        EditorGUILayout.HelpBox("Dark X: inactive or uncovered, red X: manually removed, Z: active cell, number: exact cover cell, N:/F: normal/fixed piece.", MessageType.Info);
+        EditorGUILayout.HelpBox("Dark X: inactive board cell, red X: manually removed board cell, Z: active board cell, number: exact cover cell, N:/F: normal/fixed piece, green: coverage preview.", MessageType.Info);
     }
 
     private void DrawPreview()
@@ -264,13 +273,12 @@ public class AnswerBasedStageEditorWindow : EditorWindow
             return;
         }
 
-        placedPieces.Add(new EditorPlacedPiece
+        List<EditorPlacedPiece> targetPieces = isFixed ? fixedPieces : solutionPieces;
+        targetPieces.Add(new EditorPlacedPiece
         {
             pieceData = selectedPiece,
-            position = position,
-            isFixed = isFixed
+            position = position
         });
-        activeCells.Add(position);
     }
 
     private void DeletePiece(Vector2Int position)
@@ -279,7 +287,8 @@ public class AnswerBasedStageEditorWindow : EditorWindow
 
         if (placedPiece != null)
         {
-            placedPieces.Remove(placedPiece);
+            solutionPieces.Remove(placedPiece);
+            fixedPieces.Remove(placedPiece);
         }
     }
 
@@ -291,10 +300,11 @@ public class AnswerBasedStageEditorWindow : EditorWindow
             return;
         }
 
-        if ((!coverCounts.TryGetValue(position, out int coverCount) || coverCount <= 0)
+        if (!activeCells.Contains(position)
+            && (!coverCounts.TryGetValue(position, out int coverCount) || coverCount <= 0)
             && !loadedRequiredCoverCounts.ContainsKey(position))
         {
-            Debug.LogWarning($"Cell {position} has no coverage and cannot be an exact cover cell.");
+            Debug.LogWarning($"Cell {position} is not an active board cell and has no coverage preview.");
             return;
         }
 
@@ -302,6 +312,17 @@ public class AnswerBasedStageEditorWindow : EditorWindow
         {
             exactCoverCells.Remove(position);
             loadedRequiredCoverCounts.Remove(position);
+            return;
+        }
+
+        loadedBoardCells.Add(position);
+
+        if (!loadedRequiredCoverCounts.ContainsKey(position)
+            && coverCounts.TryGetValue(position, out int currentCoverCount)
+            && currentCoverCount >= 1
+            && currentCoverCount <= 5)
+        {
+            loadedRequiredCoverCounts[position] = currentCoverCount;
         }
     }
 
@@ -316,7 +337,6 @@ public class AnswerBasedStageEditorWindow : EditorWindow
         if (!removedCells.Add(position))
         {
             removedCells.Remove(position);
-            activeCells.Add(position);
             return;
         }
 
@@ -328,8 +348,19 @@ public class AnswerBasedStageEditorWindow : EditorWindow
     private void RecalculatePreview()
     {
         coverCounts.Clear();
+        generatedCells.Clear();
 
-        foreach (EditorPlacedPiece placedPiece in placedPieces)
+        AddCoverage(solutionPieces);
+        AddCoverage(fixedPieces);
+        RebuildActiveCells();
+        RemoveInvalidExactCoverCells();
+
+        previewBoardText = BuildBoardText(logWarnings: false);
+    }
+
+    private void AddCoverage(List<EditorPlacedPiece> pieces)
+    {
+        foreach (EditorPlacedPiece placedPiece in pieces)
         {
             if (placedPiece.pieceData == null)
             {
@@ -346,10 +377,59 @@ public class AnswerBasedStageEditorWindow : EditorWindow
                 {
                     coverCounts.Add(coveredPosition, 1);
                 }
+
+                generatedCells.Add(coveredPosition);
+            }
+        }
+    }
+
+    private void RebuildActiveCells()
+    {
+        activeCells.Clear();
+
+        foreach (Vector2Int position in loadedBoardCells)
+        {
+            if (IsInsideGrid(position) && !removedCells.Contains(position))
+            {
+                activeCells.Add(position);
             }
         }
 
-        previewBoardText = BuildBoardText(logWarnings: false);
+        foreach (Vector2Int position in generatedCells)
+        {
+            if (IsInsideGrid(position) && !removedCells.Contains(position))
+            {
+                activeCells.Add(position);
+            }
+        }
+    }
+
+    private void RemoveInvalidExactCoverCells()
+    {
+        List<Vector2Int> invalidPositions = new List<Vector2Int>();
+
+        foreach (Vector2Int position in exactCoverCells)
+        {
+            if (!activeCells.Contains(position))
+            {
+                invalidPositions.Add(position);
+            }
+        }
+
+        foreach (Vector2Int position in invalidPositions)
+        {
+            exactCoverCells.Remove(position);
+            loadedRequiredCoverCounts.Remove(position);
+        }
+    }
+
+    private void ClearLoadedBoardCells()
+    {
+        loadedBoardCells.Clear();
+        exactCoverCells.Clear();
+        loadedRequiredCoverCounts.Clear();
+        RecalculatePreview();
+        Repaint();
     }
 
     private List<Vector2Int> GetCoveredPositions(PieceType pieceType, Vector2Int origin)
@@ -460,15 +540,14 @@ public class AnswerBasedStageEditorWindow : EditorWindow
             return 'X';
         }
 
-        bool isCovered = coverCounts.TryGetValue(position, out int coverCount) && coverCount > 0;
         bool hasLoadedRequiredCoverCount = loadedRequiredCoverCounts.TryGetValue(position, out int loadedRequiredCoverCount);
         bool isActive = activeCells.Contains(position);
 
-        if (!isCovered && !hasLoadedRequiredCoverCount && !isActive)
+        if (!isActive && !hasLoadedRequiredCoverCount)
         {
             if (logWarnings && exactCoverCells.Contains(position))
             {
-                Debug.LogWarning($"Exact cover cell {position} has CoverCount=0. It will be exported as X.");
+                Debug.LogWarning($"Exact cover cell {position} is not an active board cell. It will be exported as X.");
             }
 
             return 'X';
@@ -479,7 +558,7 @@ public class AnswerBasedStageEditorWindow : EditorWindow
             return 'Z';
         }
 
-        int requiredCoverCount = hasLoadedRequiredCoverCount ? loadedRequiredCoverCount : coverCount;
+        int requiredCoverCount = hasLoadedRequiredCoverCount ? loadedRequiredCoverCount : 1;
 
         if (requiredCoverCount >= 1 && requiredCoverCount <= 5)
         {
@@ -488,7 +567,7 @@ public class AnswerBasedStageEditorWindow : EditorWindow
 
         if (logWarnings)
         {
-            Debug.LogWarning($"Exact cover cell {position} has CoverCount={requiredCoverCount}. It will be exported as Z.");
+            Debug.LogWarning($"Exact cover cell {position} has RequiredCoverCount={requiredCoverCount}. It will be exported as Z.");
         }
 
         return 'Z';
@@ -503,10 +582,10 @@ public class AnswerBasedStageEditorWindow : EditorWindow
 
         string boardText = BuildBoardText(logWarnings: true);
         List<StagePieceStock> pieceStocks = BuildPieceStocks();
-        List<FixedPieceData> fixedPieces = BuildFixedPieces();
+        List<FixedPieceData> fixedPieceData = BuildFixedPieces();
 
         Undo.RecordObject(targetStageData, "Apply Stage Data");
-        WriteToStageData(targetStageData, boardText, pieceStocks, fixedPieces);
+        WriteToStageData(targetStageData, boardText, pieceStocks, fixedPieceData);
         Debug.Log($"[STAGE EDITOR] Applied StageData: {targetStageData.name}");
     }
 
@@ -535,9 +614,9 @@ public class AnswerBasedStageEditorWindow : EditorWindow
 
         Dictionary<PieceData, int> stockCounts = new Dictionary<PieceData, int>();
 
-        foreach (EditorPlacedPiece placedPiece in placedPieces)
+        foreach (EditorPlacedPiece placedPiece in solutionPieces)
         {
-            if (placedPiece.isFixed || placedPiece.pieceData == null)
+            if (placedPiece.pieceData == null)
             {
                 continue;
             }
@@ -568,23 +647,23 @@ public class AnswerBasedStageEditorWindow : EditorWindow
 
     private List<FixedPieceData> BuildFixedPieces()
     {
-        List<FixedPieceData> fixedPieces = new List<FixedPieceData>();
+        List<FixedPieceData> fixedPieceData = new List<FixedPieceData>();
 
-        foreach (EditorPlacedPiece placedPiece in placedPieces)
+        foreach (EditorPlacedPiece placedPiece in fixedPieces)
         {
-            if (!placedPiece.isFixed || placedPiece.pieceData == null)
+            if (placedPiece.pieceData == null)
             {
                 continue;
             }
 
-            fixedPieces.Add(new FixedPieceData
+            fixedPieceData.Add(new FixedPieceData
             {
                 pieceData = placedPiece.pieceData,
                 position = placedPiece.position
             });
         }
 
-        return fixedPieces;
+        return fixedPieceData;
     }
 
     private string BuildAuthorNote()
@@ -598,10 +677,14 @@ public class AnswerBasedStageEditorWindow : EditorWindow
         builder.AppendLine("Created with Answer Based Stage Editor.");
         builder.AppendLine("Answer placements:");
 
-        foreach (EditorPlacedPiece placedPiece in placedPieces)
+        foreach (EditorPlacedPiece placedPiece in solutionPieces)
         {
-            string fixedLabel = placedPiece.isFixed ? " [Fixed]" : string.Empty;
-            builder.AppendLine($"{placedPiece.pieceData.pieceType} at {placedPiece.position}{fixedLabel}");
+            builder.AppendLine($"{placedPiece.pieceData.pieceType} at {placedPiece.position}");
+        }
+
+        foreach (EditorPlacedPiece placedPiece in fixedPieces)
+        {
+            builder.AppendLine($"{placedPiece.pieceData.pieceType} at {placedPiece.position} [Fixed]");
         }
 
         return builder.ToString();
@@ -635,8 +718,11 @@ public class AnswerBasedStageEditorWindow : EditorWindow
             return;
         }
 
-        placedPieces.Clear();
+        solutionPieces.Clear();
+        fixedPieces.Clear();
         activeCells.Clear();
+        generatedCells.Clear();
+        loadedBoardCells.Clear();
         exactCoverCells.Clear();
         removedCells.Clear();
         coverCounts.Clear();
@@ -687,12 +773,10 @@ public class AnswerBasedStageEditorWindow : EditorWindow
                 }
 
                 removedCells.Remove(fixedPiece.position);
-                activeCells.Add(fixedPiece.position);
-                placedPieces.Add(new EditorPlacedPiece
+                fixedPieces.Add(new EditorPlacedPiece
                 {
                     pieceData = fixedPiece.pieceData,
-                    position = fixedPiece.position,
-                    isFixed = true
+                    position = fixedPiece.position
                 });
             }
         }
@@ -702,6 +786,7 @@ public class AnswerBasedStageEditorWindow : EditorWindow
         helpPageToShowEveryTime = stageData.helpPageToShowEveryTime;
         authorNote = stageData.authorNote;
         RecalculatePreview();
+        Repaint();
 
         Debug.Log($"[STAGE EDITOR] Loaded StageData: {stageData.name}");
         Debug.Log($"[STAGE EDITOR] board size={gridWidth}x{gridHeight}");
@@ -713,11 +798,10 @@ public class AnswerBasedStageEditorWindow : EditorWindow
     {
         if (IsInactiveBoardChar(boardChar))
         {
-            removedCells.Add(position);
             return;
         }
 
-        activeCells.Add(position);
+        loadedBoardCells.Add(position);
 
         if (boardChar >= '1' && boardChar <= '5')
         {
@@ -808,17 +892,12 @@ public class AnswerBasedStageEditorWindow : EditorWindow
         {
             cellLabel = "X";
         }
-        else if (exactCoverCells.Contains(position) && coverCounts.TryGetValue(position, out int coverCount) && coverCount > 0)
-        {
-            cellLabel = coverCount <= 5 ? coverCount.ToString() : "Z";
-        }
-
         if (placedPiece == null)
         {
             return cellLabel;
         }
 
-        string prefix = placedPiece.isFixed ? "F" : "N";
+        string prefix = fixedPieces.Contains(placedPiece) ? "F" : "N";
         return $"{prefix}:{GetPieceLabel(placedPiece.pieceData)}\n{cellLabel}";
     }
 
@@ -864,13 +943,22 @@ public class AnswerBasedStageEditorWindow : EditorWindow
 
     private EditorPlacedPiece GetPlacedPieceAt(Vector2Int position)
     {
-        return placedPieces.Find(placedPiece => placedPiece.position == position);
+        EditorPlacedPiece solutionPiece = solutionPieces.Find(placedPiece => placedPiece.position == position);
+        if (solutionPiece != null)
+        {
+            return solutionPiece;
+        }
+
+        return fixedPieces.Find(placedPiece => placedPiece.position == position);
     }
 
     private void RemoveOutOfBoundsState()
     {
-        placedPieces.RemoveAll(placedPiece => !IsInsideGrid(placedPiece.position));
+        solutionPieces.RemoveAll(placedPiece => !IsInsideGrid(placedPiece.position));
+        fixedPieces.RemoveAll(placedPiece => !IsInsideGrid(placedPiece.position));
         activeCells.RemoveWhere(position => !IsInsideGrid(position));
+        generatedCells.RemoveWhere(position => !IsInsideGrid(position));
+        loadedBoardCells.RemoveWhere(position => !IsInsideGrid(position));
         exactCoverCells.RemoveWhere(position => !IsInsideGrid(position));
         removedCells.RemoveWhere(position => !IsInsideGrid(position));
 
@@ -929,7 +1017,6 @@ public class AnswerBasedStageEditorWindow : EditorWindow
     {
         public PieceData pieceData;
         public Vector2Int position;
-        public bool isFixed;
     }
 
     [System.Serializable]
