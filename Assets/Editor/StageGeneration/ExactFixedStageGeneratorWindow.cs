@@ -54,52 +54,57 @@ public class ExactFixedStageGeneratorWindow : EditorWindow
     {
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
-        EditorGUILayout.LabelField("Exact + Fixed Stage Generator", EditorStyles.boldLabel);
-        outputFolder = (DefaultAsset)EditorGUILayout.ObjectField("Output Folder", outputFolder, typeof(DefaultAsset), false);
-        stageNamePrefix = EditorGUILayout.TextField("Stage Name Prefix", stageNamePrefix);
-
-        EditorGUILayout.Space();
-        desiredOutputCount = Mathf.Max(1, EditorGUILayout.IntField("Desired Output Count", desiredOutputCount));
-        candidateCount = Mathf.Max(1, EditorGUILayout.IntField("Candidate Count", candidateCount));
-        width = Mathf.Max(1, EditorGUILayout.IntField("Width", width));
-        height = Mathf.Max(1, EditorGUILayout.IntField("Height", height));
-        normalPieceCount = Mathf.Clamp(EditorGUILayout.IntField("Normal Piece Count", normalPieceCount), 1, width * height);
-        minFixedPieceCount = Mathf.Max(1, EditorGUILayout.IntField("Min Fixed Piece Count", minFixedPieceCount));
-        maxFixedPieceCount = Mathf.Max(minFixedPieceCount, EditorGUILayout.IntField("Max Fixed Piece Count", maxFixedPieceCount));
-
-        EditorGUILayout.Space();
-        overlapExactCellCount = Mathf.Max(1, EditorGUILayout.IntField("Overlap Exact Cell Count", overlapExactCellCount));
-        minSingleCoverExactCellCount = Mathf.Max(0, EditorGUILayout.IntField("Min Single Cover Exact Cell Count", minSingleCoverExactCellCount));
-        maxSingleCoverExactCellCount = Mathf.Max(minSingleCoverExactCellCount, EditorGUILayout.IntField("Max Single Cover Exact Cell Count", maxSingleCoverExactCellCount));
-        maxRemoveSingleCoverCells = Mathf.Max(0, EditorGUILayout.IntField("Max Remove Single Cover Cells", maxRemoveSingleCoverCells));
-
-        EditorGUILayout.Space();
-        maxSolutions = Mathf.Max(1, EditorGUILayout.IntField("Max Solutions", maxSolutions));
-        maxAcceptedSolutions = Mathf.Max(1, EditorGUILayout.IntField("Max Accepted Solutions", maxAcceptedSolutions));
-        maxSearchNodes = Mathf.Max(1, EditorGUILayout.IntField("Max Search Nodes", maxSearchNodes));
-        randomSeed = EditorGUILayout.IntField("Random Seed", randomSeed);
-        useRandomSeed = EditorGUILayout.Toggle("Use Random Seed", useRandomSeed);
-
-        EditorGUILayout.Space();
-        DrawCandidatePieceList();
-        EditorGUILayout.Space();
-        DrawFixedPieceDataMaps();
-
-        EditorGUILayout.Space();
-        using (new EditorGUI.DisabledScope(!CanGenerate()))
+        try
         {
-            if (GUILayout.Button("Generate", GUILayout.Height(32f)))
+            EditorGUILayout.LabelField("Exact + Fixed Stage Generator", EditorStyles.boldLabel);
+            outputFolder = (DefaultAsset)EditorGUILayout.ObjectField("Output Folder", outputFolder, typeof(DefaultAsset), false);
+            stageNamePrefix = EditorGUILayout.TextField("Stage Name Prefix", stageNamePrefix);
+
+            EditorGUILayout.Space();
+            desiredOutputCount = Mathf.Max(1, EditorGUILayout.IntField("Desired Output Count", desiredOutputCount));
+            candidateCount = Mathf.Max(1, EditorGUILayout.IntField("Candidate Count", candidateCount));
+            width = Mathf.Max(1, EditorGUILayout.IntField("Width", width));
+            height = Mathf.Max(1, EditorGUILayout.IntField("Height", height));
+            normalPieceCount = Mathf.Clamp(EditorGUILayout.IntField("Normal Piece Count", normalPieceCount), 1, width * height);
+            minFixedPieceCount = Mathf.Max(1, EditorGUILayout.IntField("Min Fixed Piece Count", minFixedPieceCount));
+            maxFixedPieceCount = Mathf.Max(minFixedPieceCount, EditorGUILayout.IntField("Max Fixed Piece Count", maxFixedPieceCount));
+
+            EditorGUILayout.Space();
+            overlapExactCellCount = Mathf.Max(1, EditorGUILayout.IntField("Overlap Exact Cell Count", overlapExactCellCount));
+            minSingleCoverExactCellCount = Mathf.Max(0, EditorGUILayout.IntField("Min Single Cover Exact Cell Count", minSingleCoverExactCellCount));
+            maxSingleCoverExactCellCount = Mathf.Max(minSingleCoverExactCellCount, EditorGUILayout.IntField("Max Single Cover Exact Cell Count", maxSingleCoverExactCellCount));
+            maxRemoveSingleCoverCells = Mathf.Max(0, EditorGUILayout.IntField("Max Remove Single Cover Cells", maxRemoveSingleCoverCells));
+
+            EditorGUILayout.Space();
+            maxSolutions = Mathf.Max(1, EditorGUILayout.IntField("Max Solutions", maxSolutions));
+            maxAcceptedSolutions = Mathf.Max(1, EditorGUILayout.IntField("Max Accepted Solutions", maxAcceptedSolutions));
+            maxSearchNodes = Mathf.Max(1, EditorGUILayout.IntField("Max Search Nodes", maxSearchNodes));
+            randomSeed = EditorGUILayout.IntField("Random Seed", randomSeed);
+            useRandomSeed = EditorGUILayout.Toggle("Use Random Seed", useRandomSeed);
+
+            EditorGUILayout.Space();
+            DrawCandidatePieceList();
+            EditorGUILayout.Space();
+            DrawFixedPieceDataMaps();
+
+            EditorGUILayout.Space();
+            using (new EditorGUI.DisabledScope(!CanGenerate()))
             {
-                Generate();
+                if (GUILayout.Button("Generate", GUILayout.Height(32f)))
+                {
+                    Generate();
+                }
             }
+
+            EditorGUILayout.HelpBox(
+                "Experimental generator for stages with exact cover cells and fixed pieces. Existing StageAutoGeneratorWindow is not used.",
+                MessageType.Info
+            );
         }
-
-        EditorGUILayout.HelpBox(
-            "Experimental generator for stages with exact cover cells and fixed pieces. Existing StageAutoGeneratorWindow is not used.",
-            MessageType.Info
-        );
-
-        EditorGUILayout.EndScrollView();
+        finally
+        {
+            EditorGUILayout.EndScrollView();
+        }
     }
 
     private void DrawCandidatePieceList()
@@ -109,15 +114,20 @@ public class ExactFixedStageGeneratorWindow : EditorWindow
         for (int i = 0; i < candidatePieces.Count; i++)
         {
             EditorGUILayout.BeginHorizontal();
-            candidatePieces[i] = (PieceData)EditorGUILayout.ObjectField(candidatePieces[i], typeof(PieceData), false);
-
-            if (GUILayout.Button("Remove", GUILayout.Width(70f)))
+            try
             {
-                candidatePieces.RemoveAt(i);
-                i--;
-            }
+                candidatePieces[i] = (PieceData)EditorGUILayout.ObjectField(candidatePieces[i], typeof(PieceData), false);
 
-            EditorGUILayout.EndHorizontal();
+                if (GUILayout.Button("Remove", GUILayout.Width(70f)))
+                {
+                    candidatePieces.RemoveAt(i);
+                    i--;
+                }
+            }
+            finally
+            {
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
         EditorGUILayout.BeginHorizontal();
@@ -147,24 +157,29 @@ public class ExactFixedStageGeneratorWindow : EditorWindow
             }
 
             EditorGUILayout.BeginHorizontal();
-            fixedPieceDataMaps[i].normalPieceData = (PieceData)EditorGUILayout.ObjectField(
-                fixedPieceDataMaps[i].normalPieceData,
-                typeof(PieceData),
-                false
-            );
-            fixedPieceDataMaps[i].fixedPieceData = (PieceData)EditorGUILayout.ObjectField(
-                fixedPieceDataMaps[i].fixedPieceData,
-                typeof(PieceData),
-                false
-            );
-
-            if (GUILayout.Button("Remove", GUILayout.Width(70f)))
+            try
             {
-                fixedPieceDataMaps.RemoveAt(i);
-                i--;
-            }
+                fixedPieceDataMaps[i].normalPieceData = (PieceData)EditorGUILayout.ObjectField(
+                    fixedPieceDataMaps[i].normalPieceData,
+                    typeof(PieceData),
+                    false
+                );
+                fixedPieceDataMaps[i].fixedPieceData = (PieceData)EditorGUILayout.ObjectField(
+                    fixedPieceDataMaps[i].fixedPieceData,
+                    typeof(PieceData),
+                    false
+                );
 
-            EditorGUILayout.EndHorizontal();
+                if (GUILayout.Button("Remove", GUILayout.Width(70f)))
+                {
+                    fixedPieceDataMaps.RemoveAt(i);
+                    i--;
+                }
+            }
+            finally
+            {
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
         if (GUILayout.Button("Add Fixed Map"))

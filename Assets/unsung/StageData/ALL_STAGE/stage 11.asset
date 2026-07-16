@@ -33,9 +33,9 @@ MonoBehaviour:
   - pieceData: {fileID: 11400000, guid: d6c6c1fac4af9d74a9ce94a57ec9b0fc, type: 2}
     count: 1
   fixedPieces: []
-  helpPageToUnlock: 2
-  forceShowHelpOnFirstUnlock: 1
-  helpPageToShowEveryTime: 2
+  helpPageToUnlock: 0
+  forceShowHelpOnFirstUnlock: 0
+  helpPageToShowEveryTime: 0
   authorNote: 'Auto generated stage.
 
     Mode: RandomProfile

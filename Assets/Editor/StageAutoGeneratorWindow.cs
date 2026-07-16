@@ -134,15 +134,20 @@ public class StageAutoGeneratorWindow : EditorWindow
     {
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
-        DrawOutputSettings();
-        DrawGenerationSettings();
-        DrawSharedStageSettings();
-        DrawCandidatePieces();
-        DrawStageLoaderSettings();
-        DrawSolverSettings();
-        DrawGenerateButton();
-
-        EditorGUILayout.EndScrollView();
+        try
+        {
+            DrawOutputSettings();
+            DrawGenerationSettings();
+            DrawSharedStageSettings();
+            DrawCandidatePieces();
+            DrawStageLoaderSettings();
+            DrawSolverSettings();
+            DrawGenerateButton();
+        }
+        finally
+        {
+            EditorGUILayout.EndScrollView();
+        }
     }
 
     private void DrawOutputSettings()
@@ -255,15 +260,20 @@ public class StageAutoGeneratorWindow : EditorWindow
         for (int i = 0; i < candidatePieces.Count; i++)
         {
             EditorGUILayout.BeginHorizontal();
-            candidatePieces[i] = (PieceData)EditorGUILayout.ObjectField(candidatePieces[i], typeof(PieceData), false);
-
-            if (GUILayout.Button("-", GUILayout.Width(24f)))
+            try
             {
-                candidatePieces.RemoveAt(i);
-                i--;
-            }
+                candidatePieces[i] = (PieceData)EditorGUILayout.ObjectField(candidatePieces[i], typeof(PieceData), false);
 
-            EditorGUILayout.EndHorizontal();
+                if (GUILayout.Button("-", GUILayout.Width(24f)))
+                {
+                    candidatePieces.RemoveAt(i);
+                    i--;
+                }
+            }
+            finally
+            {
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
         EditorGUILayout.BeginHorizontal();

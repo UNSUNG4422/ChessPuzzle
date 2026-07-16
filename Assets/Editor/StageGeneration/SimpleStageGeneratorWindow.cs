@@ -48,49 +48,54 @@ public class SimpleStageGeneratorWindow : EditorWindow
     {
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
-        EditorGUILayout.LabelField("Simple Standard Generator", EditorStyles.boldLabel);
-        outputFolder = (DefaultAsset)EditorGUILayout.ObjectField("Output Folder", outputFolder, typeof(DefaultAsset), false);
-        stageNamePrefix = EditorGUILayout.TextField("Stage Name Prefix", stageNamePrefix);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Generation", EditorStyles.boldLabel);
-        width = Mathf.Max(1, EditorGUILayout.IntField("Width", width));
-        height = Mathf.Max(1, EditorGUILayout.IntField("Height", height));
-        pieceCount = Mathf.Clamp(EditorGUILayout.IntField("Piece Count", pieceCount), 1, width * height);
-        candidateCount = Mathf.Max(1, EditorGUILayout.IntField("Candidate Count", candidateCount));
-        desiredOutputCount = Mathf.Max(1, EditorGUILayout.IntField("Desired Output Count", desiredOutputCount));
-        randomSeed = EditorGUILayout.IntField("Random Seed", randomSeed);
-        useRandomSeed = EditorGUILayout.Toggle("Use Random Seed", useRandomSeed);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Solver", EditorStyles.boldLabel);
-        maxSolutions = Mathf.Max(1, EditorGUILayout.IntField("Max Solutions", maxSolutions));
-        maxAcceptedSolutions = Mathf.Max(1, EditorGUILayout.IntField("Max Accepted Solutions", maxAcceptedSolutions));
-        maxSearchNodes = Mathf.Max(1, EditorGUILayout.IntField("Max Search Nodes", maxSearchNodes));
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Quality Filters", EditorStyles.boldLabel);
-        minActiveCells = Mathf.Max(1, EditorGUILayout.IntField("Min Active Cells", minActiveCells));
-        maxActiveCells = Mathf.Max(minActiveCells, EditorGUILayout.IntField("Max Active Cells", maxActiveCells));
-
-        EditorGUILayout.Space();
-        DrawCandidatePieceList();
-
-        EditorGUILayout.Space();
-        using (new EditorGUI.DisabledScope(!CanGenerate()))
+        try
         {
-            if (GUILayout.Button("Generate", GUILayout.Height(32f)))
+            EditorGUILayout.LabelField("Simple Standard Generator", EditorStyles.boldLabel);
+            outputFolder = (DefaultAsset)EditorGUILayout.ObjectField("Output Folder", outputFolder, typeof(DefaultAsset), false);
+            stageNamePrefix = EditorGUILayout.TextField("Stage Name Prefix", stageNamePrefix);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Generation", EditorStyles.boldLabel);
+            width = Mathf.Max(1, EditorGUILayout.IntField("Width", width));
+            height = Mathf.Max(1, EditorGUILayout.IntField("Height", height));
+            pieceCount = Mathf.Clamp(EditorGUILayout.IntField("Piece Count", pieceCount), 1, width * height);
+            candidateCount = Mathf.Max(1, EditorGUILayout.IntField("Candidate Count", candidateCount));
+            desiredOutputCount = Mathf.Max(1, EditorGUILayout.IntField("Desired Output Count", desiredOutputCount));
+            randomSeed = EditorGUILayout.IntField("Random Seed", randomSeed);
+            useRandomSeed = EditorGUILayout.Toggle("Use Random Seed", useRandomSeed);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Solver", EditorStyles.boldLabel);
+            maxSolutions = Mathf.Max(1, EditorGUILayout.IntField("Max Solutions", maxSolutions));
+            maxAcceptedSolutions = Mathf.Max(1, EditorGUILayout.IntField("Max Accepted Solutions", maxAcceptedSolutions));
+            maxSearchNodes = Mathf.Max(1, EditorGUILayout.IntField("Max Search Nodes", maxSearchNodes));
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Quality Filters", EditorStyles.boldLabel);
+            minActiveCells = Mathf.Max(1, EditorGUILayout.IntField("Min Active Cells", minActiveCells));
+            maxActiveCells = Mathf.Max(minActiveCells, EditorGUILayout.IntField("Max Active Cells", maxActiveCells));
+
+            EditorGUILayout.Space();
+            DrawCandidatePieceList();
+
+            EditorGUILayout.Space();
+            using (new EditorGUI.DisabledScope(!CanGenerate()))
             {
-                Generate();
+                if (GUILayout.Button("Generate", GUILayout.Height(32f)))
+                {
+                    Generate();
+                }
             }
+
+            EditorGUILayout.HelpBox(
+                "Generates Standard stages only: Z/X boardText, no exact cover, no fixed pieces, StageCategory.Standard.",
+                MessageType.Info
+            );
         }
-
-        EditorGUILayout.HelpBox(
-            "Generates Standard stages only: Z/X boardText, no exact cover, no fixed pieces, StageCategory.Standard.",
-            MessageType.Info
-        );
-
-        EditorGUILayout.EndScrollView();
+        finally
+        {
+            EditorGUILayout.EndScrollView();
+        }
     }
 
     private void DrawCandidatePieceList()
@@ -100,15 +105,20 @@ public class SimpleStageGeneratorWindow : EditorWindow
         for (int i = 0; i < candidatePieces.Count; i++)
         {
             EditorGUILayout.BeginHorizontal();
-            candidatePieces[i] = (PieceData)EditorGUILayout.ObjectField(candidatePieces[i], typeof(PieceData), false);
-
-            if (GUILayout.Button("Remove", GUILayout.Width(70f)))
+            try
             {
-                candidatePieces.RemoveAt(i);
-                i--;
-            }
+                candidatePieces[i] = (PieceData)EditorGUILayout.ObjectField(candidatePieces[i], typeof(PieceData), false);
 
-            EditorGUILayout.EndHorizontal();
+                if (GUILayout.Button("Remove", GUILayout.Width(70f)))
+                {
+                    candidatePieces.RemoveAt(i);
+                    i--;
+                }
+            }
+            finally
+            {
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
         EditorGUILayout.BeginHorizontal();

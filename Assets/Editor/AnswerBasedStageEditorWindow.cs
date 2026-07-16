@@ -54,13 +54,18 @@ public class AnswerBasedStageEditorWindow : EditorWindow
     {
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
-        DrawStageDataSettings();
-        DrawGridSettings();
-        DrawPieceStocks();
-        DrawGrid();
-        DrawPreview();
-
-        EditorGUILayout.EndScrollView();
+        try
+        {
+            DrawStageDataSettings();
+            DrawGridSettings();
+            DrawPieceStocks();
+            DrawGrid();
+            DrawPreview();
+        }
+        finally
+        {
+            EditorGUILayout.EndScrollView();
+        }
     }
 
     private void DrawStageDataSettings()
@@ -161,17 +166,22 @@ public class AnswerBasedStageEditorWindow : EditorWindow
         for (int i = 0; i < editorPieceStocks.Count; i++)
         {
             EditorGUILayout.BeginHorizontal();
-            editorPieceStocks[i].pieceData = (PieceData)EditorGUILayout.ObjectField(editorPieceStocks[i].pieceData, typeof(PieceData), false);
-            editorPieceStocks[i].count = Mathf.Max(0, EditorGUILayout.IntField(editorPieceStocks[i].count, GUILayout.Width(60f)));
-
-            if (GUILayout.Button("Remove", GUILayout.Width(70f)))
+            try
             {
-                editorPieceStocks.RemoveAt(i);
-                RecalculatePreview();
-                i--;
-            }
+                editorPieceStocks[i].pieceData = (PieceData)EditorGUILayout.ObjectField(editorPieceStocks[i].pieceData, typeof(PieceData), false);
+                editorPieceStocks[i].count = Mathf.Max(0, EditorGUILayout.IntField(editorPieceStocks[i].count, GUILayout.Width(60f)));
 
-            EditorGUILayout.EndHorizontal();
+                if (GUILayout.Button("Remove", GUILayout.Width(70f)))
+                {
+                    editorPieceStocks.RemoveAt(i);
+                    RecalculatePreview();
+                    i--;
+                }
+            }
+            finally
+            {
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
         if (GUILayout.Button("Add Piece Stock"))
@@ -193,22 +203,26 @@ public class AnswerBasedStageEditorWindow : EditorWindow
         for (int y = gridHeight - 1; y >= 0; y--)
         {
             EditorGUILayout.BeginHorizontal();
-
-            for (int x = 0; x < gridWidth; x++)
+            try
             {
-                Vector2Int position = new Vector2Int(x, y);
-                Color previousColor = GUI.backgroundColor;
-                GUI.backgroundColor = GetCellColor(position);
-
-                if (GUILayout.Button(GetCellLabel(position), GUILayout.Width(CellSize), GUILayout.Height(CellSize)))
+                for (int x = 0; x < gridWidth; x++)
                 {
-                    HandleCellClick(position);
+                    Vector2Int position = new Vector2Int(x, y);
+                    Color previousColor = GUI.backgroundColor;
+                    GUI.backgroundColor = GetCellColor(position);
+
+                    if (GUILayout.Button(GetCellLabel(position), GUILayout.Width(CellSize), GUILayout.Height(CellSize)))
+                    {
+                        HandleCellClick(position);
+                    }
+
+                    GUI.backgroundColor = previousColor;
                 }
-
-                GUI.backgroundColor = previousColor;
             }
-
-            EditorGUILayout.EndHorizontal();
+            finally
+            {
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
         EditorGUILayout.Space();

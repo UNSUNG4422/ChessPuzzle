@@ -34,7 +34,7 @@ MonoBehaviour:
     count: 1
   fixedPieces: []
   helpPageToUnlock: 0
-  forceShowHelpOnFirstUnlock: 1
+  forceShowHelpOnFirstUnlock: 0
   helpPageToShowEveryTime: 0
   authorNote: 'Created with Answer Based Stage Editor.
 
